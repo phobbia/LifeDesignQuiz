@@ -40,6 +40,8 @@ export interface Question {
   answerVisuals?: [string, string, string, string];
   correctAnswer: 0 | 1 | 2 | 3;
   explanation: string;
+  /** Indizio mostrato SOLO quando si usa l'aiuto “Chiedi al PUG!”. */
+  pugHint?: string;
   reasoningHint?: string;
 }
 

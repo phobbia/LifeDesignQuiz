@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 
-interface Props { onClose: () => void }
+interface Props {
+  onClose: () => void;
+  /** Indizio della domanda in corso, se ne ha uno. */
+  hint?: string | null;
+}
 
-export default function HelpPugOverlay({ onClose }: Props) {
+export default function HelpPugOverlay({ onClose, hint }: Props) {
   const [countdown, setCountdown] = useState(20);
   const [started, setStarted] = useState(false);
   const [done, setDone] = useState(false);
@@ -50,6 +54,42 @@ export default function HelpPugOverlay({ onClose }: Props) {
             P
           </div>
         </div>
+
+        {hint && (
+          <div
+            style={{
+              border: '2px solid var(--c-orange)',
+              borderRadius: 'calc(var(--radius-card) * 0.7)',
+              background: 'color-mix(in srgb, var(--c-orange) 10%, transparent)',
+              padding: 'clamp(10px, 1cqw, 20px) clamp(14px, 1.5cqw, 30px)',
+            }}
+          >
+            <p
+              style={{
+                margin: '0 0 0.35em',
+                fontSize: 'var(--fs-tiny)',
+                fontWeight: 700,
+                letterSpacing: '0.16em',
+                textTransform: 'uppercase',
+                color: 'var(--c-orange)',
+              }}
+            >
+              L'indizio del PUG
+            </p>
+            <p
+              style={{
+                margin: 0,
+                fontFamily: 'var(--ff-display)',
+                fontWeight: 700,
+                fontSize: 'clamp(15px, 1.45cqw, 29px)',
+                color: 'var(--c-coal)',
+                lineHeight: 1.25,
+              }}
+            >
+              {hint}
+            </p>
+          </div>
+        )}
 
         {done ? (
           <p style={{ margin: 0, fontFamily: 'var(--ff-display)', fontSize: 'var(--fs-answer)', fontWeight: 700, color: 'var(--c-coal)' }}>

@@ -173,12 +173,6 @@ export default function SuperHeroScreen({
         </p>
       </div>
 
-      {/* Reasoning hint */}
-      {question.reasoningHint && (
-        <p style={{ margin: 0, fontSize: 'var(--fs-tiny)', color: 'var(--c-warm-gray)', fontStyle: 'italic', zIndex: 2, flexShrink: 0 }}>
-          Suggerimento: {question.reasoningHint}
-        </p>
-      )}
 
       {/* ANSWER GRID 2x2 */}
       <div style={{

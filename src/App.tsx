@@ -712,7 +712,10 @@ export default function App() {
       )}
 
       {state.screen === 'help_pug' && (
-        <HelpPugOverlay onClose={() => dispatch({ type: 'CLOSE_HELP_OVERLAY' })} />
+        <HelpPugOverlay
+          hint={state.currentQuestion?.pugHint ?? state.currentQuestion?.reasoningHint ?? null}
+          onClose={() => dispatch({ type: 'CLOSE_HELP_OVERLAY' })}
+        />
       )}
 
       {state.showKeyboardHelp && (
