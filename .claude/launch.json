@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "quiz", "runtimeExecutable": "npx", "runtimeArgs": ["vite", "--port", "5177", "--strictPort"], "port": 5177 }
+  ]
+}

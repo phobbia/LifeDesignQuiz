@@ -11,14 +11,14 @@ interface Props {
 export default function TimerArc({ max, current, running, active, dark = false, onStart, onToggle }: Props) {
   if (max === 0) return null;
 
-  const size = 'clamp(56px, 7vw, 88px)';
+  const size = 'clamp(56px, 4.6cqw, 88px)';
   const r = 38;
   const circumference = 2 * Math.PI * r;
   const ratio = max > 0 ? current / max : 1;
   const dashoffset = circumference * (1 - ratio);
 
   const isWarning = current <= 5 && active;
-  const strokeColor = !active ? 'var(--c-warm-gray)' : isWarning ? 'var(--c-orange)' : dark ? 'var(--c-pink)' : 'var(--c-violet)';
+  const strokeColor = !active ? 'var(--c-warm-gray)' : isWarning ? 'var(--c-red)' : dark ? 'var(--c-pink)' : 'var(--c-violet)';
   const textColor = dark ? 'var(--c-ivory)' : 'var(--c-coal)';
 
   return (
@@ -44,14 +44,14 @@ export default function TimerArc({ max, current, running, active, dark = false, 
             width: '100%',
             height: '100%',
             transform: 'rotate(-90deg)',
-            animation: isWarning ? 'incandescent 0.5s ease-in-out infinite' : 'none',
+            animation: isWarning ? 'soft-alarm 0.9s var(--ease-in-out) infinite' : 'none',
           }}
         >
           {/* Track */}
           <circle
             cx="50" cy="50" r={r}
             fill="none"
-            stroke="rgb(38, 38, 38)"
+            stroke={dark ? 'rgba(244,239,230,0.22)' : 'rgba(38,38,38,0.18)'}
             strokeWidth="6"
           />
           {/* Progress arc */}
@@ -63,7 +63,7 @@ export default function TimerArc({ max, current, running, active, dark = false, 
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={active ? dashoffset : 0}
-            style={{ transition: 'stroke-dashoffset 0.5s linear, stroke 0.3s ease' }}
+            style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.45s var(--ease-soft)' }}
           />
         </svg>
         {/* Center content */}
@@ -81,10 +81,11 @@ export default function TimerArc({ max, current, running, active, dark = false, 
           ) : (
             <>
               <span style={{
-                fontFamily: 'Aquawax Fx, sans-serif',
-                fontWeight: 800,
-                fontSize: 'clamp(0.9rem, 1.6vw, 1.6rem)',
-                color: isWarning ? 'var(--c-orange)' : textColor,
+                fontFamily: 'var(--ff-mono)',
+                fontVariantNumeric: 'tabular-nums',
+                fontWeight: 700,
+                fontSize: 'clamp(0.9rem, 1.4cqw, 1.6rem)',
+                color: isWarning ? 'var(--c-red)' : textColor,
                 lineHeight: 1,
                 transition: 'color 0.2s',
               }}>
@@ -97,7 +98,6 @@ export default function TimerArc({ max, current, running, active, dark = false, 
           )}
         </div>
       </div>
-      {false && null}
     </button>
   );
 }

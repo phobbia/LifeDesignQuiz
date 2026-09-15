@@ -1,36 +1,176 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @import 'tailwindcss';
 
+/* ════════════════════════════════════════════════════════════════
+   TIPOGRAFIA — Aquawax Fx (display) + Automat Grotesk (testo/UI)
+   ════════════════════════════════════════════════════════════════ */
+
+/* ─── Aquawax Fx — famiglia display ─── */
+@font-face {
+  font-family: 'Aquawax Fx';
+  src: url('./assets/fonts/Aquawax-Fx-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aquawax Fx';
+  src: url('./assets/fonts/Aquawax-Fx-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aquawax Fx';
+  src: url('./assets/fonts/Aquawax-Fx-Demibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aquawax Fx';
+  src: url('./assets/fonts/Aquawax-Fx-Demibold-Italic.woff2') format('woff2');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aquawax Fx';
+  src: url('./assets/fonts/Aquawax-Fx-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aquawax Fx';
+  src: url('./assets/fonts/Aquawax-Fx-Ultrabold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aquawax Fx';
+  src: url('./assets/fonts/Aquawax-Fx-Heavy.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ─── Automat Grotesk — famiglia testo / UI ─── */
+@font-face {
+  font-family: 'Automat Grotesk';
+  src: url('./assets/fonts/Automat-Grotesk-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Automat Grotesk';
+  src: url('./assets/fonts/Automat-Grotesk.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Automat Grotesk';
+  src: url('./assets/fonts/Automat-Grotesk-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Automat Grotesk';
+  src: url('./assets/fonts/Automat-Grotesk-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Automat Grotesk';
+  src: url('./assets/fonts/Automat-Grotesk-Bold.woff2') format('woff2');
+  font-weight: 600 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Automat Grotesk';
+  src: url('./assets/fonts/Automat-Grotesk-Extrabold.woff2') format('woff2');
+  font-weight: 800 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ─── Automat Grotesk Mono — dati, timer, tasti ─── */
+@font-face {
+  font-family: 'Automat Grotesk Mono';
+  src: url('./assets/fonts/Automat-Grotesk-Mono.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Automat Grotesk Mono';
+  src: url('./assets/fonts/Automat-Grotesk-Mono-Bold.woff2') format('woff2');
+  font-weight: 600 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
-  --font-display: 'Aquawax Fx', sans-serif;
-  --font-body: 'Automat Grotesk', sans-serif;
-  --font-sans: 'Automat Grotesk', sans-serif;
+  --font-display: 'Aquawax Fx', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Automat Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'Automat Grotesk Mono', ui-monospace, monospace;
+  --font-sans: 'Automat Grotesk', 'Helvetica Neue', Arial, sans-serif;
 }
 
 :root {
-  --c-ivory: #F4EFE6;
+  /* ─── Stack tipografici (gerarchia) ───
+     display  → titoli, numeri, livelli, emblemi  (Aquawax Fx)
+     body     → domande, risposte, UI, bottoni    (Automat Grotesk)
+     mono     → timer, contatori, tasti           (Automat Grotesk Mono) */
+  --ff-display: 'Aquawax Fx', 'Helvetica Neue', Arial, sans-serif;
+  --ff-body: 'Automat Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  --ff-mono: 'Automat Grotesk Mono', ui-monospace, monospace;
+
+  /* Prelevati dal sito del festival: avorio, coal, warm gray, rosa,
+     viola, arancio e sabbia coincidono con quelli di lifedesignfestival.it. */
+  --c-ivory: #F4EEE4;
   --c-coal: #262626;
   --c-warm-gray: #D4CEC4;
   --c-pink: #FF75BF;
   --c-violet: #7476F6;
   --c-orange: #E05738;
+  --c-sand: #B89075;
+  --c-ink: #000000;
   --c-white: #FFFFFF;
   --c-dark-brown: #332421;
 
-  --radius-card: clamp(16px, 2vw, 28px);
+  /* Esiti: verde corretta, rosso sbagliata.
+     Entrambi superano il contrasto AA (4.5:1) con il testo bianco. */
+  --c-green: #17794A;
+  --c-red: #C82F1F;
+
+  /* Curve di accelerazione condivise da tutte le transizioni. */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-back: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  --radius-card: clamp(16px, 2cqw, 28px);
   --radius-btn: 0px;
 
-  --dur-fast: 120ms;
-  --dur-med: 280ms;
-  --dur-slow: 550ms;
-  --dur-xslow: 1100ms;
+  --dur-fast: 160ms;
+  --dur-med: 320ms;
+  --dur-slow: 620ms;
+  --dur-xslow: 1200ms;
 
-  --fs-display: clamp(2.5rem, 7vw, 7.5rem);
-  --fs-title: clamp(1.8rem, 4.5vw, 4.5rem);
-  --fs-question: clamp(1.2rem, 2.4vw, 2.4rem);
-  --fs-answer: clamp(1.1rem, 2vw, 2.2rem);
-  --fs-label: clamp(0.65rem, 1vw, 1rem);
-  --fs-tiny: clamp(0.55rem, 0.8vw, 0.8rem);
+  /* Scala tipografica — risolta in unità di container (1cqw = 19.2px
+     sul palco 1920×1080), quindi stabile a ogni dimensione di finestra. */
+  --fs-display: clamp(2.5rem, 7cqw, 8.5rem);
+  --fs-title: clamp(1.8rem, 4.5cqw, 5.5rem);
+  --fs-question: clamp(1.2rem, 2.4cqw, 3rem);
+  --fs-answer: clamp(1.1rem, 2cqw, 2.5rem);
+  --fs-label: clamp(0.8rem, 1.15cqw, 1.4rem);
+  --fs-tiny: clamp(0.7rem, 0.85cqw, 1.05rem);
 }
 
 *, *::before, *::after {
@@ -44,7 +184,10 @@ html, body {
   height: 100%;
   overflow: hidden;
   background: var(--c-coal);
-  font-family: 'Automat Grotesk', sans-serif;
+  font-family: var(--ff-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 #root {
@@ -53,46 +196,157 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 ::-webkit-scrollbar { display: none; }
 
-/* ─── Game Viewport: 16:9 always ─── */
-.game-viewport {
+/* ─── Palco di gioco ───
+   Canvas di progetto fisso 1920×1080 scalato uniformemente da JS:
+   nessun elemento può "rompersi", il rapporto 16:9 è sempre rispettato
+   e le unità di container (cqw/cqh) rendono ogni misura proporzionale. */
+.game-stage {
   position: relative;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--c-coal);
+}
+
+/* Posizionamento assoluto + translate: il centraggio non dipende dal
+   comportamento del flexbox con un figlio più grande del contenitore. */
+.game-viewport {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1920px;
+  height: 1080px;
   background: var(--c-ivory);
   overflow: hidden;
-  width: 100vw;
-  height: 56.25vw; /* 9/16 */
-  max-height: 100vh;
-  max-width: calc(100vh * (16 / 9));
-  margin: auto;
+  transform: translate(-50%, -50%) scale(var(--stage-scale, 1));
+  transform-origin: center center;
+  container-type: size;
+  container-name: stage;
+  font-family: var(--ff-body);
+  color: var(--c-coal);
 }
 
 /* dark mode viewport */
 .game-viewport.dark {
   background: var(--c-coal);
+  color: var(--c-ivory);
+}
+
+/* ─── Suggerimento rotazione ───
+   In verticale su telefono il palco 16:9 diventa una striscia minuscola:
+   meglio invitare a ruotare che mostrare un gioco illeggibile. */
+.rotate-hint {
+  display: none;
+}
+
+@media (orientation: portrait) and (max-width: 860px) {
+  .rotate-hint {
+    position: absolute;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 32px;
+    text-align: center;
+    background: var(--c-coal);
+    color: var(--c-ivory);
+  }
+  .rotate-hint__icon {
+    font-size: 44px;
+    line-height: 1;
+    animation: rotate-tilt 2.4s ease-in-out infinite;
+  }
+  .rotate-hint__title {
+    font-family: var(--ff-display);
+    font-weight: 800;
+    font-size: 26px;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .rotate-hint__text {
+    font-family: var(--ff-body);
+    font-size: 15px;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 30ch;
+    color: var(--c-warm-gray);
+  }
+}
+
+@keyframes rotate-tilt {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+}
+
+/* ─── Gerarchia tipografica ───
+   Default: tutto in Automat Grotesk. Le classi .type-* hanno specificità
+   maggiore così possono sovrascrivere il default su qualsiasi elemento. */
+.game-viewport p,
+.game-viewport span,
+.game-viewport label,
+.game-viewport li,
+.game-viewport button,
+.game-viewport input,
+.game-viewport textarea {
+  font-family: var(--ff-body);
+}
+
+.game-viewport h1,
+.game-viewport h2,
+.game-viewport h3,
+.game-viewport .type-display {
+  font-family: var(--ff-display);
+  letter-spacing: -0.015em;
+}
+
+.game-viewport .type-body {
+  font-family: var(--ff-body);
+  letter-spacing: 0;
+}
+
+.game-viewport .type-num {
+  font-family: var(--ff-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
 }
 
 /* ─── Answer Cards ─── */
 .answer-card {
+  color: var(--c-coal);
   border-radius: var(--radius-card);
   border: 2px solid var(--c-coal);
   background: var(--c-white);
   cursor: pointer;
-  transition: transform var(--dur-med) ease, background var(--dur-med) ease,
-    border-color var(--dur-med) ease, box-shadow var(--dur-med) ease, opacity var(--dur-med) ease;
+  transition: transform var(--dur-med) var(--ease-soft), background var(--dur-med) var(--ease-soft),
+    border-color var(--dur-med) var(--ease-soft), box-shadow var(--dur-med) var(--ease-soft),
+    opacity var(--dur-med) var(--ease-soft), color var(--dur-med) var(--ease-soft);
   position: relative;
   overflow: hidden;
   user-select: none;
   outline: none;
+  min-width: 0;
+  min-height: 0;
 }
 
 .answer-card:hover:not(.eliminated):not(.disabled):not(.correct):not(.wrong):not(.selected) {
   border-color: var(--c-violet);
   background: color-mix(in srgb, var(--c-violet) 8%, var(--c-white));
-  transform: translateY(-3px);
-  box-shadow: 0 10px 28px color-mix(in srgb, var(--c-violet) 22%, transparent);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--c-violet) 22%, transparent);
+}
+
+/* La pressione dà un ritorno immediato, prima ancora del cambio di schermata. */
+.answer-card:active:not(.eliminated):not(.disabled):not(.correct):not(.wrong) {
+  transform: translateY(-1px) scale(0.995);
+  transition-duration: var(--dur-fast);
 }
 
 .answer-card:focus-visible:not(.eliminated):not(.disabled) {
@@ -109,17 +363,45 @@ html, body {
 }
 
 .answer-card.correct {
-  border-color: var(--c-violet);
+  border-color: var(--c-green);
   border-width: 3px;
-  background: color-mix(in srgb, var(--c-violet) 18%, var(--c-white));
-  animation: card-correct var(--dur-slow) ease forwards;
+  background: var(--c-green);
+  color: var(--c-white);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--c-green) 25%, transparent),
+    0 16px 40px color-mix(in srgb, var(--c-green) 35%, transparent);
+  animation: card-correct var(--dur-slow) var(--ease-back) forwards;
+  z-index: 3;
 }
 
 .answer-card.wrong {
-  border-color: var(--c-orange);
+  border-color: var(--c-red);
   border-width: 3px;
-  background: color-mix(in srgb, var(--c-orange) 16%, var(--c-white));
-  animation: card-wrong var(--dur-med) ease forwards;
+  background: var(--c-red);
+  color: var(--c-white);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--c-red) 25%, transparent),
+    0 16px 40px color-mix(in srgb, var(--c-red) 30%, transparent);
+  animation: card-wrong var(--dur-med) var(--ease-in-out) forwards;
+  z-index: 3;
+}
+
+/* In attesa del verdetto: la scelta pulsa, le altre si spengono. */
+.answer-card.pending {
+  border-color: var(--c-violet);
+  border-width: 3px;
+  background: color-mix(in srgb, var(--c-violet) 10%, var(--c-white));
+  animation: card-pending 0.9s ease-in-out infinite;
+  z-index: 3;
+}
+
+.answer-card.dimmed {
+  opacity: 0.35;
+  filter: saturate(0.5);
+  pointer-events: none;
+}
+
+.dark .answer-card.pending {
+  border-color: var(--c-pink);
+  background: color-mix(in srgb, var(--c-pink) 14%, var(--c-coal));
 }
 
 .answer-card.eliminated {
@@ -137,8 +419,8 @@ html, body {
 
 /* Dark mode answer cards (superhero) */
 .dark .answer-card {
-  background: color-mix(in srgb, var(--c-coal) 70%, var(--c-white));
-  border-color: var(--c-warm-gray);
+  background: color-mix(in srgb, var(--c-white) 8%, var(--c-coal));
+  border-color: color-mix(in srgb, var(--c-warm-gray) 55%, transparent);
   color: var(--c-ivory);
 }
 .dark .answer-card:hover:not(.eliminated):not(.disabled):not(.correct):not(.wrong):not(.selected) {
@@ -150,18 +432,45 @@ html, body {
   background: color-mix(in srgb, var(--c-pink) 15%, var(--c-coal));
 }
 .dark .answer-card.correct {
-  border-color: var(--c-pink);
-  background: color-mix(in srgb, var(--c-pink) 22%, var(--c-coal));
+  border-color: var(--c-green);
+  background: var(--c-green);
+  color: var(--c-white);
 }
 .dark .answer-card.wrong {
-  border-color: var(--c-orange);
-  background: color-mix(in srgb, var(--c-orange) 18%, var(--c-coal));
+  border-color: var(--c-red);
+  background: var(--c-red);
+  color: var(--c-white);
 }
 
 @keyframes card-correct {
   0% { transform: scale(1); }
-  40% { transform: scale(1.025); }
-  100% { transform: scale(1); }
+  35% { transform: scale(1.045); }
+  100% { transform: scale(1.02); }
+}
+
+@keyframes card-pending {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-violet) 35%, transparent); }
+  50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--c-violet) 0%, transparent); }
+}
+
+/* Anello di conto alla rovescia dell'attesa. */
+@keyframes verdict-ring {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: var(--verdict-circumference); }
+}
+
+@keyframes verdict-pop {
+  0% { opacity: 0; transform: scale(0.82); }
+  55% { transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes verdict-shake {
+  0% { opacity: 0; transform: scale(0.9) translateX(0); }
+  40% { opacity: 1; transform: scale(1) translateX(-10px); }
+  60% { transform: translateX(9px); }
+  80% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
 }
 
 @keyframes card-wrong {
@@ -181,6 +490,12 @@ html, body {
   100% { transform: translateY(0); opacity: 1; }
 }
 
+/* Sfarfallio dell'estrazione: cambio di opacità invece di uno scossone. */
+@keyframes roll-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
 @keyframes vibrate-text {
   0%, 100% { transform: translate(0, 0); }
   20% { transform: translate(-1px, 1px); }
@@ -190,13 +505,33 @@ html, body {
 }
 
 @keyframes glow-pulse {
-  0%, 100% { opacity: 0.6; }
+  0%, 100% { opacity: 0.65; }
   50% { opacity: 1; }
 }
 
+/* Pulsazione morbida per il timer in esaurimento: al posto del
+   lampeggio a scatti, un respiro. */
+@keyframes soft-alarm {
+  0%, 100% { transform: scale(1); filter: none; }
+  50% { transform: scale(1.04); filter: brightness(1.12); }
+}
+
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Ogni schermata entra con la stessa firma: niente stacchi secchi. */
+.game-viewport > div {
+  animation: screen-in var(--dur-slow) var(--ease-soft) both;
+  /* Crea un contesto di sovrapposizione proprio: i tracciati decorativi
+     restano confinati dietro al contenuto di questa schermata. */
+  isolation: isolate;
+}
+
+@keyframes screen-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes scale-in {
@@ -224,29 +559,49 @@ html, body {
   50% { stroke: var(--c-orange); }
 }
 
+@keyframes trace-draw {
+  from { stroke-dashoffset: 3200; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes trace-node {
+  from { opacity: 0; transform: scale(0.3); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 /* Utility animation classes */
-.animate-fade-in { animation: fade-in var(--dur-slow) ease forwards; }
-.animate-scale-in { animation: scale-in var(--dur-slow) ease forwards; }
-.animate-slide-up { animation: slide-up var(--dur-slow) ease forwards; }
+.animate-fade-in { animation: fade-in var(--dur-slow) var(--ease-soft) forwards; }
+.animate-scale-in { animation: scale-in var(--dur-slow) var(--ease-back) forwards; }
+.animate-slide-up { animation: slide-up var(--dur-slow) var(--ease-soft) forwards; }
 .incandescent { animation: incandescent 1.8s ease-in-out infinite; }
 .vibrate { animation: vibrate-text 0.3s ease-in-out; }
 .glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
 
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* ─── Buttons ─── */
 .btn-primary {
-  font-family: 'Automat Grotesk', sans-serif;
+  font-family: var(--ff-body);
   font-weight: 600;
   border-radius: var(--radius-btn);
   background: var(--c-coal);
   color: var(--c-ivory);
   border: 2px solid var(--c-coal);
   cursor: pointer;
-  transition: all var(--dur-med) ease;
+  transition: all var(--dur-med) var(--ease-soft);
   letter-spacing: 0.05em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5em;
+  text-align: center;
+  line-height: 1.15;
 }
 .btn-primary:hover {
   background: var(--c-violet);
@@ -254,27 +609,46 @@ html, body {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px color-mix(in srgb, var(--c-violet) 35%, transparent);
 }
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:active,
+.btn-secondary:active {
+  transform: translateY(1px) scale(0.985);
+  transition-duration: var(--dur-fast);
+}
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible {
+  outline: 3px solid var(--c-violet);
+  outline-offset: 3px;
+}
 
 .btn-secondary {
-  font-family: 'Automat Grotesk', sans-serif;
+  font-family: var(--ff-body);
   font-weight: 500;
   border-radius: var(--radius-btn);
   background: transparent;
   color: var(--c-coal);
   border: 2px solid var(--c-coal);
   cursor: pointer;
-  transition: all var(--dur-med) ease;
+  transition: all var(--dur-med) var(--ease-soft);
   letter-spacing: 0.03em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5em;
+  text-align: center;
+  line-height: 1.15;
 }
 .btn-secondary:hover {
   background: var(--c-coal);
   color: var(--c-ivory);
   transform: translateY(-2px);
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .dark .btn-primary {
@@ -303,20 +677,31 @@ html, body {
   background: var(--c-ivory);
   color: var(--c-coal);
   cursor: pointer;
-  font-family: 'Automat Grotesk', sans-serif;
+  font-family: var(--ff-body);
   font-weight: 700;
-  transition: all var(--dur-med) ease;
+  transition: all var(--dur-med) var(--ease-soft);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   gap: 2px;
+  flex-shrink: 0;
+  padding: 0;
 }
 .help-btn:hover:not(:disabled) {
   background: var(--c-violet);
   border-color: var(--c-violet);
   color: var(--c-white);
-  transform: scale(1.08);
+  transform: scale(1.09) translateY(-2px);
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--c-violet) 30%, transparent);
+}
+.help-btn:active:not(:disabled) {
+  transform: scale(1.02);
+  transition-duration: var(--dur-fast);
+}
+.help-btn:focus-visible {
+  outline: 3px solid var(--c-violet);
+  outline-offset: 3px;
 }
 .help-btn:disabled,
 .help-btn.used {
@@ -338,13 +723,13 @@ html, body {
 
 /* ─── Input fields ─── */
 .quiz-input {
-  font-family: 'Automat Grotesk', sans-serif;
+  font-family: var(--ff-body);
   border-radius: var(--radius-btn);
   border: 2px solid var(--c-warm-gray);
   background: var(--c-white);
   color: var(--c-coal);
   padding: 0.7em 1.2em;
-  transition: border-color var(--dur-fast) ease;
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
   outline: none;
   width: 100%;
 }
@@ -362,7 +747,7 @@ html, body {
   border: 2px solid var(--c-coal);
   cursor: pointer;
   position: relative;
-  transition: background var(--dur-med) ease;
+  transition: background var(--dur-med) var(--ease-soft);
   flex-shrink: 0;
 }
 .toggle-track.on { background: var(--c-violet); }
@@ -374,8 +759,10 @@ html, body {
   height: calc(1.8em - 8px);
   border-radius: 50%;
   background: var(--c-white);
-  transition: transform var(--dur-med) ease;
+  transition: transform var(--dur-med) var(--ease-back);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
+.toggle-track:hover { filter: brightness(1.04); }
 .toggle-track.on .toggle-thumb {
   transform: translateX(1.7em);
 }

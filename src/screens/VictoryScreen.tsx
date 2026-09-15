@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Traces from '../components/Traces';
 
 interface Props {
   playerName: string;
@@ -30,36 +31,21 @@ export default function VictoryScreen({ playerName, prize, onCelebrate, onEnd }:
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 'clamp(10px,1.8vw,24px)',
+      gap: 'clamp(10px,1.8cqw,24px)',
       padding: '4%',
       textAlign: 'center',
       position: 'relative',
       overflow: 'hidden',
     }}>
       {/* Minimal decoration */}
-      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
-        {phase >= 2 && (
-          <path d="M -100 540 Q 960 300 2020 540" fill="none" stroke="var(--c-violet)" strokeWidth="1.5"
-            opacity="0.2"
-            strokeDasharray="3000"
-            strokeDashoffset={0}
-            style={{ transition: 'stroke-dashoffset 1.5s ease, opacity 0.8s ease' }}
-          />
-        )}
-        {phase >= 3 && (
-          <>
-            <rect x="200" y="300" width="40" height="6" rx="3" fill="var(--c-pink)" opacity="0.5" />
-            <rect x="1680" y="750" width="40" height="6" rx="3" fill="var(--c-violet)" opacity="0.5" />
-          </>
-        )}
-      </svg>
+      <Traces variant="focus" />
 
       {/* Content */}
-      <div style={{ zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', rowGap: 32, columnGap: 20 }}>
+      <div style={{ zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', rowGap: 'clamp(14px, 1.7cqw, 32px)' }}>
         {phase >= 1 && (
           <p style={{
             margin: 0,
-            fontFamily: 'Automat Grotesk, sans-serif',
+            fontFamily: 'var(--ff-body)',
             fontSize: 'var(--fs-label)',
             fontWeight: 700,
             color: phase >= 3 ? 'var(--c-violet)' : 'var(--c-pink)',
@@ -75,7 +61,7 @@ export default function VictoryScreen({ playerName, prize, onCelebrate, onEnd }:
         {phase >= 2 && (
           <h1 style={{
             margin: 0,
-            fontFamily: 'Aquawax Fx, sans-serif',
+            fontFamily: 'var(--ff-display)',
             fontSize: 'var(--fs-display)',
             fontWeight: 800,
             color: phase >= 3 ? 'var(--c-coal)' : 'var(--c-ivory)',
@@ -95,7 +81,7 @@ export default function VictoryScreen({ playerName, prize, onCelebrate, onEnd }:
         {phase >= 3 && playerName && (
           <p style={{
             margin: 0,
-            fontFamily: 'Automat Grotesk, sans-serif',
+            fontFamily: 'var(--ff-body)',
             fontSize: 'var(--fs-answer)',
             fontWeight: 500,
             color: 'var(--c-coal)',
@@ -116,7 +102,7 @@ export default function VictoryScreen({ playerName, prize, onCelebrate, onEnd }:
             <p style={{ margin: '0 0 0.3em', fontSize: 'var(--fs-tiny)', color: 'var(--c-coal)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
               HAI VINTO
             </p>
-            <p style={{ margin: 0, fontFamily: 'Aquawax Fx, sans-serif', fontSize: 'var(--fs-title)', fontWeight: 800, color: 'var(--c-coal)', lineHeight: 1 }}>
+            <p style={{ margin: 0, fontFamily: 'var(--ff-display)', fontSize: 'var(--fs-title)', fontWeight: 800, color: 'var(--c-coal)', lineHeight: 1 }}>
               {prize}
             </p>
           </div>
@@ -126,20 +112,19 @@ export default function VictoryScreen({ playerName, prize, onCelebrate, onEnd }:
           <div style={{ display: 'flex', gap: '1em', flexWrap: 'wrap', justifyContent: 'center', animation: 'fade-in 0.5s ease' }}>
             <button
               className="btn-primary"
-              style={{ padding: 'clamp(12px,1.3vw,18px) clamp(28px,3vw,48px)', fontSize: 'var(--fs-answer)', background: 'var(--c-violet)', color: 'var(--c-ivory)' }}
+              style={{ padding: 'clamp(12px,1.3cqw,18px) clamp(28px,3cqw,48px)', fontSize: 'var(--fs-answer)', background: 'var(--c-violet)', color: 'var(--c-ivory)' }}
               onClick={onCelebrate}
             >
               🎉 FESTEGGIA LA VITTORIA
             </button>
             <button
               style={{
-                padding: 'clamp(12px,1.3vw,18px) clamp(24px,2.5vw,40px)',
-                fontSize: 24,
-                fontFamily: 'Automat Grotesk, sans-serif',
+                padding: 'clamp(12px,1.3cqw,18px) clamp(24px,2.5cqw,40px)',
+                fontSize: 'var(--fs-answer)',
+                fontFamily: 'var(--ff-body)',
                 fontWeight: 700,
                 color: 'var(--c-ivory)',
                 background: 'var(--c-coal)',
-                fontSize: 35,
                 border: 'none',
                 borderRadius: 'var(--radius-btn)',
                 cursor: 'pointer',

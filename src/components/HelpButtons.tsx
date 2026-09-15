@@ -15,7 +15,7 @@ const helps: { key: HelpType; label: string; sub: string; shortcut: string }[] =
 
 export default function HelpButtons({ helpsUsed, allowed, dark = false, onUse }: Props) {
   return (
-    <div style={{ display: 'flex', gap: 'clamp(6px,0.8vw,12px)', alignItems: 'center' }}>
+    <div style={{ display: 'flex', gap: 'clamp(6px,0.8cqw,12px)', alignItems: 'center' }}>
       {helps.map(h => {
         const used = helpsUsed[h.key];
         return (
@@ -26,9 +26,9 @@ export default function HelpButtons({ helpsUsed, allowed, dark = false, onUse }:
             onClick={() => !used && allowed && onUse(h.key)}
             title={`[${h.shortcut}] ${h.key === 'fifty' ? '50:50' : h.key === 'audience' ? 'Voce dal pubblico' : 'Chiedi al PUG!'}`}
             style={{
-              width: 'clamp(44px,5vw,64px)',
-              height: 'clamp(44px,5vw,64px)',
-              fontSize: h.key === 'fifty' ? 'clamp(0.55rem,0.9vw,0.9rem)' : 'clamp(0.75rem,1.2vw,1.2rem)',
+              width: 'clamp(44px,3.4cqw,64px)',
+              height: 'clamp(44px,3.4cqw,64px)',
+              fontSize: h.key === 'fifty' ? 'clamp(0.6rem,0.78cqw,0.95rem)' : 'clamp(0.8rem,1.05cqw,1.3rem)',
             }}
           >
             <span style={{ lineHeight: 1, fontWeight: 800 }}>{h.label}</span>

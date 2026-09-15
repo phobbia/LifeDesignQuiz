@@ -1,4 +1,5 @@
 import type { Question } from '../types';
+import Traces from '../components/Traces';
 
 interface Props {
   question: Question;
@@ -18,25 +19,21 @@ export default function DefeatScreen({ question, selectedAnswer, onEnd, onNew }:
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 'clamp(12px,2vw,28px)',
-      padding: '4% 8%',
+      gap: 'clamp(12px,2cqw,28px)',
+      padding: 'clamp(20px, 2.5cqw, 48px) clamp(32px, 6.5cqw, 125px)',
       textAlign: 'center',
       position: 'relative',
       overflow: 'hidden',
     }}>
       {/* Decoration */}
-      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
-        <path d="M -100 900 Q 400 700 800 500 Q 1200 300 1920 600" fill="none" stroke="var(--c-warm-gray)" strokeWidth="1" opacity="0.15" />
-        <path d="M 960 0 Q 800 400 960 540 Q 1120 680 960 1080" fill="none" stroke="var(--c-pink)" strokeWidth="1.2" opacity="0.15" />
-        <rect x="940" y="536" width="40" height="4" rx="2" fill="var(--c-orange)" opacity="0.5" />
-      </svg>
+      <Traces variant="focus" dark />
 
       {/* Badge */}
       <div style={{
         border: '2px solid var(--c-pink)',
         borderRadius: 'var(--radius-btn)',
         padding: '0.4em 1.4em',
-        fontFamily: 'Automat Grotesk, sans-serif',
+        fontFamily: 'var(--ff-body)',
         fontWeight: 700,
         fontSize: 'var(--fs-label)',
         color: 'var(--c-pink)',
@@ -51,7 +48,7 @@ export default function DefeatScreen({ question, selectedAnswer, onEnd, onNew }:
       {/* Main title */}
       <h1 style={{
         margin: 0,
-        fontFamily: 'Aquawax Fx, sans-serif',
+        fontFamily: 'var(--ff-display)',
         fontSize: 'var(--fs-display)',
         fontWeight: 800,
         color: 'var(--c-ivory)',
@@ -73,18 +70,18 @@ export default function DefeatScreen({ question, selectedAnswer, onEnd, onNew }:
 
       {/* Correct answer reveal */}
       <div style={{
-        background: 'color-mix(in srgb, var(--c-violet) 15%, var(--c-coal))',
-        border: '2px solid var(--c-violet)',
+        background: 'color-mix(in srgb, var(--c-green) 18%, var(--c-coal))',
+        border: '2px solid var(--c-green)',
         borderRadius: 'var(--radius-card)',
         padding: '2% 3.5%',
-        maxWidth: '60vw',
+        maxWidth: '60cqw',
         animation: 'scale-in 0.5s ease 0.4s both',
         zIndex: 2,
       }}>
-        <p style={{ margin: '0 0 0.4em', fontSize: 'var(--fs-label)', color: 'var(--c-violet)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+        <p style={{ margin: '0 0 0.4em', fontSize: 'var(--fs-label)', color: 'var(--c-green)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
           La risposta corretta era
         </p>
-        <p style={{ margin: '0 0 0.4em', fontFamily: 'Aquawax Fx, sans-serif', fontSize: 'var(--fs-answer)', fontWeight: 700, color: 'var(--c-ivory)' }}>
+        <p style={{ margin: '0 0 0.4em', fontFamily: 'var(--ff-display)', fontSize: 'var(--fs-answer)', fontWeight: 700, color: 'var(--c-ivory)' }}>
           {LABELS[question.correctAnswer]}: {question.answers[question.correctAnswer]}
         </p>
         <p style={{ margin: 0, fontSize: 'var(--fs-label)', color: 'var(--c-warm-gray)', lineHeight: 1.4 }}>

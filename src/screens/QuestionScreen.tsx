@@ -1,17 +1,28 @@
 import { useEffect, useRef } from 'react';
-import type { Question, Level, HelpType } from '../types';
+import Traces from '../components/Traces';
+import type { Question, HelpType } from '../types';
 import { LEVEL_NAMES, LEVEL_COLORS } from '../types';
 import ProgressTrack from '../components/ProgressTrack';
 import TimerArc from '../components/TimerArc';
 import HelpButtons from '../components/HelpButtons';
 import { LogoCompact } from '../components/Logo';
+import { renderVisual } from '../data/visuals';
+import { ResultModal, SuspenseOverlay, type Outcome } from '../components/Verdict';
 
 const LABELS = ['A', 'B', 'C', 'D'];
+
+const DIFFICULTY_COLORS: Record<string, string> = {
+  Accessibile: '#1F9A3C',
+  Media: '#C98A12',
+  Avanzata: 'var(--c-orange)',
+  Suprema: 'var(--c-pink)',
+};
+
 
 interface Props {
   question: Question;
   level: 1 | 2 | 3;
-  screen: 'question' | 'confirm' | 'result';
+  screen: 'question' | 'confirm' | 'suspense' | 'result';
   selectedAnswer: number | null;
   eliminatedAnswers: number[];
   helpsUsed: { fifty: boolean; audience: boolean; pug: boolean };
@@ -52,12 +63,28 @@ export default function QuestionScreen({
   }, [screen]);
 
   const accentColor = LEVEL_COLORS[level];
+  const isSuspense = screen === 'suspense';
+  const outcome: Outcome =
+    selectedAnswer === null || selectedAnswer < 0
+      ? 'timeout'
+      : selectedAnswer === question.correctAnswer
+        ? 'correct'
+        : 'wrong';
+  const difficultyColor = DIFFICULTY_COLORS[question.difficulty] ?? 'var(--c-violet)';
+  // Domande con quattro campioni visivi al posto delle risposte testuali:
+  // servono card più alte e un'altra impaginazione interna.
+  const visualAnswers = question.answerVisuals;
+  const questionVisual = renderVisual(question.visual);
   const isResult = screen === 'result';
   const isConfirm = screen === 'confirm';
 
   const cardClass = (i: number) => {
     let cls = 'answer-card';
     if (eliminatedAnswers.includes(i)) return cls + ' eliminated';
+    if (isSuspense) {
+      // Durante l'attesa la scelta pulsa, le altre si spengono.
+      return cls + (i === selectedAnswer ? ' pending' : ' dimmed');
+    }
     if (isResult) {
       if (i === question.correctAnswer) return cls + ' correct';
       if (i === selectedAnswer && i !== question.correctAnswer) return cls + ' wrong';
@@ -81,52 +108,32 @@ export default function QuestionScreen({
       background: 'var(--c-ivory)',
       display: 'flex',
       flexDirection: 'column',
-      padding: '64px',
-      rowGap: '28px',
+      padding: 'clamp(24px, 3.3cqw, 64px)',
+      rowGap: 'clamp(10px, 1.45cqw, 28px)',
       columnGap: '1.5%',
       position: 'relative',
       overflow: 'hidden',
     }}>
       {/* Decorative SVG background - evolves per level */}
-      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }} viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
-        <path d="M -50 900 Q 300 600 600 700 Q 900 800 1200 500 Q 1500 200 1970 400" fill="none" stroke="var(--c-warm-gray)" strokeWidth="1" opacity="0.25" />
-        {showSecondaryLines && (
-          <>
-            <path d="M 0 300 Q 400 500 800 200 Q 1200 -100 1920 300" fill="none" stroke="var(--c-pink)" strokeWidth="0.8" opacity="0.15" />
-            <rect x="820" y="52" width="20" height="3" rx="1.5" fill="var(--c-pink)" opacity="0.5" />
-          </>
-        )}
-        {showArcs && (
-          <>
-            <path d="M 1700 1080 Q 1900 700 1700 300 Q 1500 -100 1900 100" fill="none" stroke="var(--c-violet)" strokeWidth="1" opacity="0.15" />
-            <path d="M 50 0 Q -50 300 100 600" fill="none" stroke="var(--c-orange)" strokeWidth="1" opacity="0.12" />
-            <rect x="1120" y="48" width="14" height="3" rx="1.5" fill="var(--c-violet)" opacity="0.6" />
-          </>
-        )}
-      </svg>
+      <Traces variant="open" opacity={0.9} />
 
       {/* TOP BAR */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 2, flexShrink: 0 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2em' }}>
-          <div style={{ width: 85, overflow: 'hidden', flexShrink: 0 }}>
-            <LogoCompact size={65} color="var(--c-coal)" />
-          </div>
+          <LogoCompact size={65} color="var(--c-coal)" />
           {/* Level badge */}
-          <div style={{
-            display: 'flex', flexDirection: 'column', gap: '0.1em',
-            fontFamily: 'Aquawax Fx, sans-serif',
-          }}>
-            <span style={{ fontSize: 'var(--fs-tiny)', color: 'var(--c-coal)', letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 600 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1em' }}>
+            <span style={{ fontFamily: 'var(--ff-body)', fontSize: 'var(--fs-tiny)', color: 'var(--c-coal)', letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 600 }}>
               Livello {level}
             </span>
-            <span style={{ fontFamily: 'Aquawax Fx, sans-serif', fontWeight: 800, fontSize: 'var(--fs-answer)', color: accentColor, lineHeight: 1 }}>
+            <span style={{ fontFamily: 'var(--ff-display)', fontWeight: 800, fontSize: 'var(--fs-answer)', color: accentColor, lineHeight: 1 }}>
               {LEVEL_NAMES[level]}
             </span>
           </div>
         </div>
 
         {/* Progress + Timer + Helps */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px,1.5vw,20px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px,1.5cqw,20px)' }}>
           <HelpButtons helpsUsed={helpsUsed} allowed={helpsAllowed} onUse={onUseHelp} />
           {timerMax > 0 && (
             <TimerArc
@@ -151,47 +158,65 @@ export default function QuestionScreen({
         <span style={{
           background: accentColor,
           color: 'white',
-          fontSize: '16px',
+          fontFamily: 'var(--ff-body)',
+          fontSize: 'clamp(11px, 0.84cqw, 16px)',
           fontWeight: 700,
           padding: '0.25em 0.8em',
           borderRadius: 'var(--radius-btn)',
-          letterSpacing: '0.1px',
+          letterSpacing: '0.08em',
           textTransform: 'uppercase',
         }}>{question.category}</span>
         <span style={{
-          border: '1px solid rgb(25, 159, 47)',
-          color: 'rgb(25, 159, 47)',
-          fontSize: '16px',
+          border: `1px solid ${difficultyColor}`,
+          color: difficultyColor,
+          fontFamily: 'var(--ff-body)',
+          fontSize: 'clamp(11px, 0.84cqw, 16px)',
           fontWeight: 600,
           padding: '0.2em 0.7em',
           borderRadius: 'var(--radius-btn)',
-          letterSpacing: '0.1px',
-        }}>LIVELLO FACILE</span>
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+        }}>Difficoltà {question.difficulty}</span>
       </div>
 
       {/* QUESTION */}
       <div style={{ flex: '0 0 auto', zIndex: 2, maxWidth: '78%' }}>
         <p style={{
           margin: 0,
-          fontFamily: 'Aquawax Fx, sans-serif',
-          fontSize: '48px',
+          fontFamily: 'var(--ff-display)',
+          fontSize: 'clamp(22px, 2.5cqw, 48px)',
           fontWeight: 900,
           color: 'var(--c-coal)',
-          lineHeight: 1.25,
+          lineHeight: 1.2,
         }}>
           {question.question}
         </p>
       </div>
 
+      {/* Campione visivo a corredo della domanda */}
+      {questionVisual && (
+        <div style={{ zIndex: 2, flexShrink: 0, display: 'flex', justifyContent: 'flex-start' }}>
+          {questionVisual}
+        </div>
+      )}
+
       {/* ANSWER GRID 2x2 */}
       <div style={{
-        flexGrow: 0,
-        flexBasis: 'auto',
-        height: 'fit-content',
+        // Altezza contenuta: le card non devono riempire tutto lo spazio
+        // residuo. Il margine automatico centra la griglia lasciando aria
+        // sopra e sotto.
+        flex: '0 1 auto',
+        height: visualAnswers
+          ? 'clamp(230px, 38cqh, 420px)'
+          : questionVisual
+            ? 'clamp(150px, 23cqh, 250px)'
+            : 'clamp(196px, 30cqh, 330px)',
+        maxHeight: '100%',
+        margin: 'auto 0',
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
         gridTemplateRows: '1fr 1fr',
-        gap: 'clamp(8px,1.2vw,16px)',
+        gap: 'clamp(8px,1.2cqw,16px)',
         zIndex: 2,
         minHeight: 0,
       }}>
@@ -207,8 +232,8 @@ export default function QuestionScreen({
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 'clamp(10px,1.5vw,20px)',
-              padding: 'clamp(14px,1.4vw,22px) clamp(16px,2vw,28px)',
+              gap: 'clamp(10px,1.5cqw,20px)',
+              padding: 'clamp(14px,1.4cqw,22px) clamp(16px,2cqw,28px)',
               textAlign: 'left',
               width: '100%',
               height: '100%',
@@ -217,42 +242,46 @@ export default function QuestionScreen({
             {/* Label badge */}
             <div style={{
               flexShrink: 0,
-              width: 'clamp(28px,3.5vw,48px)',
-              height: 'clamp(28px,3.5vw,48px)',
+              width: 'clamp(28px,3.5cqw,48px)',
+              height: 'clamp(28px,3.5cqw,48px)',
               borderRadius: '50%',
-              border: `2px solid ${isResult && i === question.correctAnswer ? 'var(--c-violet)' : isResult && i === selectedAnswer ? 'var(--c-orange)' : 'var(--c-warm-gray)'}`,
+              border: `2px solid ${isResult && i === question.correctAnswer ? 'var(--c-white)' : isResult && i === selectedAnswer ? 'var(--c-white)' : 'var(--c-warm-gray)'}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontFamily: 'Aquawax Fx, sans-serif',
+              fontFamily: 'var(--ff-display)',
               fontWeight: 800,
               fontSize: 'var(--fs-label)',
-              color: isResult && i === question.correctAnswer ? 'var(--c-violet)' : isResult && i === selectedAnswer ? 'var(--c-orange)' : 'var(--c-coal)',
+              color: isResult && (i === question.correctAnswer || i === selectedAnswer) ? 'var(--c-white)' : 'var(--c-coal)',
               transition: 'all 0.25s ease',
             }}>
               {LABELS[i]}
             </div>
 
-            {/* Answer text */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{
-                margin: 0,
-                fontFamily: 'Automat Grotesk, sans-serif',
-                fontSize: 'var(--fs-answer)',
-                fontWeight: 500,
-                color: 'var(--c-coal)',
-                lineHeight: 1.3,
-              }}>
-                {ans}
-              </p>
+            {/* Campione visivo, oppure testo della risposta */}
+            <div style={{ flex: 1, minWidth: 0, minHeight: 0, height: visualAnswers ? '100%' : undefined, color: 'inherit' }}>
+              {visualAnswers ? (
+                renderVisual(visualAnswers[i])
+              ) : (
+                <p style={{
+                  margin: 0,
+                  fontFamily: 'var(--ff-body)',
+                  fontSize: 'var(--fs-answer)',
+                  fontWeight: 500,
+                  color: 'inherit',
+                  lineHeight: 1.3,
+                }}>
+                  {ans}
+                </p>
+              )}
             </div>
 
             {/* Result icon */}
             {isResult && i === question.correctAnswer && (
-              <span style={{ fontSize: '1.3em', flexShrink: 0, color: 'var(--c-violet)' }}>✓</span>
+              <span style={{ fontSize: '1.3em', flexShrink: 0, color: 'var(--c-white)' }}>✓</span>
             )}
             {isResult && i === selectedAnswer && i !== question.correctAnswer && (
-              <span style={{ fontSize: '1.3em', flexShrink: 0, color: 'var(--c-orange)' }}>✕</span>
+              <span style={{ fontSize: '1.3em', flexShrink: 0, color: 'var(--c-white)' }}>✕</span>
             )}
           </button>
         ))}
@@ -271,12 +300,12 @@ export default function QuestionScreen({
             border: '2px solid var(--c-coal)',
             padding: '4% 5%',
             textAlign: 'center',
-            maxWidth: '44vw',
+            maxWidth: '44cqw',
             animation: 'scale-in 0.25s ease',
           }}>
             <p style={{
               margin: '0 0 0.3em',
-              fontFamily: 'Aquawax Fx, sans-serif',
+              fontFamily: 'var(--ff-display)',
               fontSize: 'var(--fs-answer)',
               fontWeight: 700,
               color: 'var(--c-coal)',
@@ -285,11 +314,14 @@ export default function QuestionScreen({
             </p>
             <p style={{
               margin: '0 0 1.5em',
-              fontFamily: 'Automat Grotesk, sans-serif',
+              fontFamily: 'var(--ff-body)',
               fontSize: 'var(--fs-label)',
               color: 'var(--c-coal)',
             }}>
-              Hai scelto <strong style={{ color: 'var(--c-violet)' }}>{LABELS[selectedAnswer!]}: {question.answers[selectedAnswer!]}</strong>
+              Hai scelto{' '}
+              <strong style={{ color: 'var(--c-violet)' }}>
+                {visualAnswers ? `l'opzione ${LABELS[selectedAnswer!]}` : `${LABELS[selectedAnswer!]}: ${question.answers[selectedAnswer!]}`}
+              </strong>
             </p>
             <div style={{ display: 'flex', gap: '1em', justifyContent: 'center' }}>
               <button className="btn-secondary" style={{ padding: '0.7em 1.8em', fontSize: 'var(--fs-label)' }} onClick={onCancel}>
@@ -303,62 +335,27 @@ export default function QuestionScreen({
         </div>
       )}
 
-      {/* RESULT OVERLAY */}
-      {isResult && (
-        <div style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 10,
-          background: selectedAnswer === question.correctAnswer
-            ? 'color-mix(in srgb, var(--c-violet) 15%, var(--c-ivory))'
-            : 'color-mix(in srgb, var(--c-orange) 12%, var(--c-ivory))',
-          borderTop: `3px solid ${selectedAnswer === question.correctAnswer ? 'var(--c-violet)' : 'var(--c-orange)'}`,
-          padding: '2% 4%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '2em',
-          animation: 'slide-up 0.4s ease',
-        }}>
-          <div style={{ flex: 1 }}>
-            <p style={{
-              margin: '0 0 0.25em',
-              fontFamily: 'Aquawax Fx, sans-serif',
-              fontWeight: 800,
-              fontSize: 'var(--fs-answer)',
-              color: selectedAnswer === question.correctAnswer ? 'var(--c-violet)' : 'var(--c-orange)',
-              letterSpacing: '0.08em',
-            }}>
-              {selectedAnswer === null || selectedAnswer < 0
-                ? 'TEMPO SCADUTO'
-                : selectedAnswer === question.correctAnswer ? '✓ CORRETTA' : '✕ ERRATA'}
-            </p>
-            <p style={{
-              margin: 0,
-              fontFamily: 'Automat Grotesk, sans-serif',
-              fontSize: 'var(--fs-label)',
-              color: 'var(--c-coal)',
-              maxWidth: '60vw',
-              lineHeight: 1.4,
-            }}>
-              {question.explanation}
-            </p>
-          </div>
-          <button
-            className="btn-primary"
-            style={{ padding: '0.8em 2.2em', fontSize: 'var(--fs-label)', flexShrink: 0 }}
-            onClick={onNext}
-          >
-            {selectedAnswer === question.correctAnswer ? 'Avanti →' : 'Fine'}
-          </button>
-        </div>
+      {/* ATTESA — i secondi di tensione prima del verdetto */}
+      {isSuspense && (
+        <SuspenseOverlay
+          durationMs={3500}
+          label={selectedAnswer !== null && selectedAnswer >= 0 ? LABELS[selectedAnswer] : null}
+        />
       )}
+
+      {/* RESPONSO — modale centrale */}
+      {isResult && (
+        <ResultModal
+          outcome={outcome}
+          correctLabel={LABELS[question.correctAnswer]}
+          correctText={question.answers[question.correctAnswer]}
+          explanation={question.explanation}
+          buttonLabel={outcome === 'correct' ? 'Avanti →' : 'Continua'}
+          onNext={onNext}
+        />
+      )}
+
     </div>
   );
 }
 
-function clamp(min: number, vw: number, max: number) {
-  return `clamp(${min}px, ${vw}vw, ${max}px)` as unknown as number;
-}

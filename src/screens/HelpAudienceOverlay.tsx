@@ -25,16 +25,16 @@ export default function HelpAudienceOverlay({ onClose }: Props) {
         borderRadius: 'var(--radius-card)',
         border: '2px solid var(--c-pink)',
         padding: '4% 5%',
-        maxWidth: '48vw',
+        maxWidth: '48cqw',
         textAlign: 'center',
-        display: 'flex', flexDirection: 'column', gap: 'clamp(10px,1.5vw,20px)',
+        display: 'flex', flexDirection: 'column', gap: 'clamp(10px,1.5cqw,20px)',
         animation: 'scale-in 0.3s ease',
       }}>
         <div style={{ border: '2px solid var(--c-pink)', borderRadius: 'var(--radius-btn)', padding: '0.4em 1.2em', alignSelf: 'center', fontSize: 'var(--fs-tiny)', fontWeight: 700, color: 'var(--c-pink)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
           Voce dal pubblico
         </div>
 
-        <p style={{ margin: 0, fontFamily: 'Aquawax Fx, sans-serif', fontSize: 'var(--fs-question)', fontWeight: 700, color: 'var(--c-coal)', lineHeight: 1.2 }}>
+        <p style={{ margin: 0, fontFamily: 'var(--ff-display)', fontSize: 'var(--fs-question)', fontWeight: 700, color: 'var(--c-coal)', lineHeight: 1.2 }}>
           {done ? 'Torna alla domanda' : 'Scegli una voce dal pubblico'}
         </p>
 
@@ -45,7 +45,7 @@ export default function HelpAudienceOverlay({ onClose }: Props) {
         )}
 
         {started && !done && (
-          <div style={{ width: 'clamp(60px,9vw,110px)', height: 'clamp(60px,9vw,110px)', alignSelf: 'center', position: 'relative' }}>
+          <div style={{ width: 'clamp(60px,9cqw,110px)', height: 'clamp(60px,9cqw,110px)', alignSelf: 'center', position: 'relative' }}>
             <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
               <circle cx="50" cy="50" r="42" fill="none" stroke="var(--c-warm-gray)" strokeWidth="6" />
               <circle cx="50" cy="50" r="42" fill="none" stroke="var(--c-pink)" strokeWidth="6" strokeLinecap="round"
@@ -55,7 +55,7 @@ export default function HelpAudienceOverlay({ onClose }: Props) {
               />
             </svg>
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontFamily: 'Aquawax Fx, sans-serif', fontWeight: 800, fontSize: 'clamp(1.2rem,2.5vw,2.5rem)', color: countdown <= 5 ? 'var(--c-orange)' : 'var(--c-coal)' }}>
+              <span style={{ fontFamily: 'var(--ff-display)', fontWeight: 800, fontSize: 'clamp(1.2rem,2.5cqw,2.5rem)', color: countdown <= 5 ? 'var(--c-orange)' : 'var(--c-coal)' }}>
                 {countdown}
               </span>
             </div>

@@ -144,3 +144,11 @@
 *.stl                filter=lfs diff=lfs merge=lfs -text
 *.nc                 filter=lfs diff=lfs merge=lfs -text
 *.mat                filter=lfs diff=lfs merge=lfs -text
+
+# ---------------------------------------------------------------------------
+# Font del progetto — esclusi da Git LFS
+# ---------------------------------------------------------------------------
+# I woff2 di Aquawax Fx e Automat Grotesk pesano 58-75 KB l'uno: LFS è pensato
+# per file grandi e qui aggiungerebbe solo una dipendenza in più da installare
+# per chiunque cloni il repository.
+src/assets/fonts/** !filter !diff !merge -text

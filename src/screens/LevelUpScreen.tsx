@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Level } from '../types';
+import Traces from '../components/Traces';
 import { LEVEL_NAMES, LEVEL_COLORS } from '../types';
 
 interface Props {
@@ -16,7 +16,7 @@ const nextLevelNames: Record<number, string> = {
 export default function LevelUpScreen({ level, onContinue }: Props) {
   const [phase, setPhase] = useState(0);
   const color = LEVEL_COLORS[level];
-  const levelLabel = level === 1 ? 'OCCHIO ALLENATO' : level === 2 ? 'MENTE PROGETTUALE' : 'DESIGN HERO';
+  const levelLabel = LEVEL_NAMES[level];
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase(1), 200);
@@ -33,32 +33,12 @@ export default function LevelUpScreen({ level, onContinue }: Props) {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 'clamp(12px,2vw,28px)',
+      gap: 'clamp(12px,2cqw,28px)',
       position: 'relative',
       overflow: 'hidden',
     }}>
       {/* Animated arcs */}
-      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
-        <path
-          d="M 960 1200 Q 400 800 960 540 Q 1520 280 960 -120"
-          fill="none"
-          stroke={color}
-          strokeWidth="1.5"
-          opacity={phase >= 1 ? 0.25 : 0}
-          strokeDasharray="2000"
-          strokeDashoffset={phase >= 1 ? 0 : 2000}
-          style={{ transition: 'stroke-dashoffset 1s ease, opacity 0.4s ease' }}
-        />
-        <path
-          d="M 0 540 Q 480 300 960 540 Q 1440 780 1920 540"
-          fill="none"
-          stroke={color}
-          strokeWidth="1"
-          opacity={phase >= 2 ? 0.2 : 0}
-          style={{ transition: 'opacity 0.5s ease' }}
-        />
-        <rect x="920" y="528" width="40" height="4" rx="2" fill={color} opacity={phase >= 2 ? 0.7 : 0} style={{ transition: 'opacity 0.3s ease' }} />
-      </svg>
+      <Traces variant="focus" />
 
       {/* Level badge */}
       <div style={{
@@ -72,7 +52,7 @@ export default function LevelUpScreen({ level, onContinue }: Props) {
           border: `2px solid ${color}`,
           borderRadius: 'var(--radius-btn)',
           padding: '0.4em 1.4em',
-          fontFamily: 'Automat Grotesk, sans-serif',
+          fontFamily: 'var(--ff-body)',
           fontWeight: 700,
           fontSize: 'var(--fs-label)',
           color,
@@ -93,7 +73,7 @@ export default function LevelUpScreen({ level, onContinue }: Props) {
       }}>
         <h1 style={{
           margin: 0,
-          fontFamily: 'Aquawax Fx, sans-serif',
+          fontFamily: 'var(--ff-display)',
           fontSize: 'var(--fs-display)',
           fontWeight: 800,
           color: 'var(--c-coal)',
@@ -118,7 +98,7 @@ export default function LevelUpScreen({ level, onContinue }: Props) {
           </p>
           <p style={{
             margin: 0,
-            fontFamily: 'Automat Grotesk, sans-serif',
+            fontFamily: 'var(--ff-display)',
             fontSize: 'var(--fs-answer)',
             fontWeight: 700,
             color: 'var(--c-coal)',
@@ -132,7 +112,7 @@ export default function LevelUpScreen({ level, onContinue }: Props) {
       <button
         className="btn-primary"
         style={{
-          padding: 'clamp(12px,1.5vw,20px) clamp(36px,4vw,64px)',
+          padding: 'clamp(12px,1.5cqw,20px) clamp(36px,4cqw,64px)',
           fontSize: 'var(--fs-answer)',
           opacity: phase >= 3 ? 1 : 0,
           transform: phase >= 3 ? 'translateY(0)' : 'translateY(10px)',

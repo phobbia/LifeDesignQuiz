@@ -9,7 +9,7 @@ interface Props {
   onEnd: () => void;
 }
 
-const CONFETTI_COLORS = ['#BF3A3A', '#6B4FBB', '#E87D3E', '#F4EFE6', '#332421'];
+const CONFETTI_COLORS = ['#FF75BF', '#7476F6', '#E05738', '#F4EFE6', '#D4CEC4'];
 const CONFETTI_COUNT = 80;
 
 function randomBetween(a: number, b: number) {
@@ -86,7 +86,7 @@ export default function CelebrateScreen({ playerName, correctCount, totalQuestio
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 'clamp(20px,2.5vw,36px)',
+      gap: 'clamp(20px,2.5cqw,36px)',
       padding: '4%',
       position: 'relative',
       overflow: 'hidden',
@@ -108,17 +108,17 @@ export default function CelebrateScreen({ playerName, correctCount, totalQuestio
         style={{
           position: 'absolute', top: '3%', right: '3%',
           zIndex: 10,
-          width: 44, height: 44,
+          width: 'clamp(34px, 2.3cqw, 44px)', height: 'clamp(34px, 2.3cqw, 44px)',
           borderRadius: '50%',
           border: '2px solid rgba(244,239,230,0.4)',
           background: 'rgba(244,239,230,0.08)',
-          color: '#F4EFE6',
-          fontSize: 22,
-          fontWeight: 300,
+          color: 'var(--c-ivory)',
+          fontSize: 'clamp(16px, 1.15cqw, 22px)',
+          fontWeight: 400,
           cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           lineHeight: 1,
-          fontFamily: 'sans-serif',
+          fontFamily: 'var(--ff-body)',
           transition: 'background 0.2s',
         }}
         aria-label="Chiudi"
@@ -129,42 +129,40 @@ export default function CelebrateScreen({ playerName, correctCount, totalQuestio
       {/* Share card */}
       <div style={{
         background: 'var(--c-ivory)',
-        borderRadius: 'clamp(16px,2vw,28px)',
-        paddingTop: 48,
-        paddingRight: 64,
-        paddingBottom: 48,
-        paddingLeft: 64,
+        borderRadius: 'clamp(16px,2cqw,28px)',
+        paddingTop: 'clamp(22px, 2.5cqw, 48px)',
+        paddingRight: 'clamp(28px, 3.3cqw, 64px)',
+        paddingBottom: 'clamp(22px, 2.5cqw, 48px)',
+        paddingLeft: 'clamp(28px, 3.3cqw, 64px)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        rowGap: 32,
-        columnGap: 24,
+        rowGap: 'clamp(14px, 1.7cqw, 32px)',
         textAlign: 'center',
-        width: 680,
-        height: 'fit-content',
+        width: 'min(680px, 62cqw)',
+        maxHeight: '78cqh',
         position: 'relative',
         zIndex: 2,
         boxShadow: '0 0 0 1px rgba(0,0,0,0.06), 0 32px 80px rgba(0,0,0,0.45)',
       }}>
         {/* Logo */}
-        <div style={{ width: 85 }}>
+        <div style={{ width: 'clamp(52px, 4.4cqw, 85px)' }}>
           <Logo color="var(--c-coal)" />
         </div>
 
         {/* Badge */}
         <div style={{
           background: 'var(--c-pink)',
-          color: 'var(--c-pink)',
           borderRadius: 100,
           padding: '0.4em 1.6em',
         }}>
           <span style={{
-            fontFamily: 'Automat Grotesk, sans-serif',
+            fontFamily: 'var(--ff-body)',
             fontWeight: 700,
-            fontSize: 32,
+            fontSize: 'clamp(13px, 1.25cqw, 24px)',
             color: 'var(--c-coal)',
-            letterSpacing: '0.25em',
+            letterSpacing: '0.22em',
             textTransform: 'uppercase',
           }}>
             Super Hero Designer
@@ -174,7 +172,7 @@ export default function CelebrateScreen({ playerName, correctCount, totalQuestio
         {/* Name */}
         <h1 style={{
           margin: 0,
-          fontFamily: 'Aquawax Fx, sans-serif',
+          fontFamily: 'var(--ff-display)',
           fontWeight: 800,
           fontSize: 'var(--fs-display)',
           color: 'var(--c-coal)',
@@ -185,20 +183,20 @@ export default function CelebrateScreen({ playerName, correctCount, totalQuestio
         </h1>
 
         {/* Score + Prize */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', rowGap: 24, columnGap: 0 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', rowGap: 'clamp(12px, 1.25cqw, 24px)' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.15em' }}>
             <span style={{
-              fontFamily: 'Aquawax Fx, sans-serif',
+              fontFamily: 'var(--ff-display)',
               fontWeight: 800,
-              fontSize: 120,
-              letterSpacing: 1,
+              fontSize: 'clamp(48px, 6.25cqw, 120px)',
+              letterSpacing: '0.01em',
               color: 'var(--c-violet)',
               lineHeight: 1,
             }}>
               {correctCount}/{totalQuestions}
             </span>
             <span style={{
-              fontFamily: 'Automat Grotesk, sans-serif',
+              fontFamily: 'var(--ff-body)',
               fontWeight: 600,
               fontSize: 'var(--fs-tiny)',
               color: 'var(--c-coal)',
@@ -209,21 +207,21 @@ export default function CelebrateScreen({ playerName, correctCount, totalQuestio
             </span>
           </div>
 
-          <div style={{ width: 496, height: 2, background: 'rgba(38,38,38,0.12)', color: 'var(--c-coal)' }} />
+          <div style={{ width: '80%', height: 2, background: 'rgba(38,38,38,0.12)' }} />
 
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.15em' }}>
             <span style={{
-              fontFamily: 'Aquawax Fx, sans-serif',
+              fontFamily: 'var(--ff-display)',
               fontWeight: 800,
-              fontSize: 120,
-              letterSpacing: 1,
+              fontSize: 'clamp(48px, 6.25cqw, 120px)',
+              letterSpacing: '0.01em',
               color: 'var(--c-pink)',
               lineHeight: 1,
             }}>
               🏆
             </span>
             <span style={{
-              fontFamily: 'Automat Grotesk, sans-serif',
+              fontFamily: 'var(--ff-body)',
               fontWeight: 600,
               fontSize: 'var(--fs-tiny)',
               color: 'var(--c-coal)',
@@ -247,10 +245,10 @@ export default function CelebrateScreen({ playerName, correctCount, totalQuestio
         textAlign: 'center',
       }}>
         <span style={{
-          fontFamily: 'Automat Grotesk, sans-serif',
+          fontFamily: 'var(--ff-body)',
           fontWeight: 600,
-          fontSize: 19,
-          color: '#F4EFE6',
+          fontSize: 'clamp(12px, 1cqw, 19px)',
+          color: 'var(--c-ivory)',
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
           opacity: 1,
@@ -260,10 +258,10 @@ export default function CelebrateScreen({ playerName, correctCount, totalQuestio
         <div style={{ display: 'flex', gap: '1.2em', flexWrap: 'wrap', justifyContent: 'center' }}>
           {['@life.designfestival', '@pugdesignfest'].map(tag => (
             <span key={tag} style={{
-              fontFamily: 'Automat Grotesk, sans-serif',
+              fontFamily: 'var(--ff-body)',
               fontWeight: 800,
-              fontSize: 'clamp(16px,1.8vw,26px)',
-              color: '#F4EFE6',
+              fontSize: 'clamp(16px,1.8cqw,26px)',
+              color: 'var(--c-ivory)',
               letterSpacing: '0.05em',
             }}>
               {tag}

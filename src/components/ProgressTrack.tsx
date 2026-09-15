@@ -10,7 +10,7 @@ interface Props {
 export default function ProgressTrack({ level, correctCount, dark = false }: Props) {
   const steps = [
     { num: '01', label: 'OCCHIO ALLENATO', l: 1 },
-    { num: '02', label: 'MENTEP PROGETTUALE', l: 2 },
+    { num: '02', label: 'MENTE PROGETTUALE', l: 2 },
     { num: '03', label: 'DESIGN MASTER', l: 3 },
     { num: '04', label: 'SUPER HERO DESIGNER', l: 4 },
   ];
@@ -27,7 +27,7 @@ export default function ProgressTrack({ level, correctCount, dark = false }: Pro
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0', width: '100%', position: 'relative' }}>
       {steps.map((step, i) => {
-        const done = step.l < level || (step.l === level && correctCount >= step.l);
+        const done = step.l < level;
         const active = step.l === level;
         const color = done || active ? accentColors[step.l] : mutedColor;
 
@@ -36,8 +36,8 @@ export default function ProgressTrack({ level, correctCount, dark = false }: Pro
             {/* Step dot */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3em' }}>
               <div style={{
-                width: 'clamp(20px, 2.2vw, 28px)',
-                height: 'clamp(20px, 2.2vw, 28px)',
+                width: 'clamp(20px, 2.2cqw, 28px)',
+                height: 'clamp(20px, 2.2cqw, 28px)',
                 borderRadius: '50%',
                 background: done ? color : 'transparent',
                 border: `2px solid ${color}`,
@@ -51,13 +51,15 @@ export default function ProgressTrack({ level, correctCount, dark = false }: Pro
                 {active && !done && <div style={{ width: '40%', height: '40%', borderRadius: '50%', background: color }} />}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px 5px' }}>
-                <span style={{ fontSize: '32px', fontFamily: 'Aquawax Fx, sans-serif', color, fontWeight: 900, lineHeight: 1 }}>{step.num}</span>
+                <span style={{ fontSize: 'clamp(18px, 1.7cqw, 32px)', fontFamily: 'var(--ff-display)', color, fontWeight: 900, lineHeight: 1 }}>{step.num}</span>
                 <span style={{
                   fontSize: 'calc(var(--fs-tiny) * 0.85)',
                   color: active ? textColor : mutedColor,
                   fontWeight: active ? 600 : 400,
                   whiteSpace: 'nowrap',
                   lineHeight: 1.2,
+                  fontFamily: 'var(--ff-body)',
+                  letterSpacing: '0.08em',
                 }}>
                   {step.label}
                 </span>
@@ -67,7 +69,7 @@ export default function ProgressTrack({ level, correctCount, dark = false }: Pro
             {/* Connecting arc */}
             {i < steps.length - 1 && (
               <svg
-                style={{ flex: 1, minWidth: 0, height: 'clamp(20px, 3vw, 36px)', overflow: 'visible' }}
+                style={{ flex: 1, minWidth: 0, height: 'clamp(20px, 3cqw, 36px)', overflow: 'visible' }}
                 viewBox="0 0 100 30"
                 preserveAspectRatio="none"
               >

@@ -1,4 +1,5 @@
 import type { AnswerRecord, Level } from '../types';
+import Traces from '../components/Traces';
 import { LEVEL_NAMES } from '../types';
 import Logo from '../components/Logo';
 
@@ -33,24 +34,21 @@ export default function FinalScreen({ playerName, level, correctCount, answerHis
       background: 'var(--c-ivory)',
       display: 'flex',
       flexDirection: 'column',
-      padding: '3% 5%',
-      gap: '2%',
+      padding: 'clamp(16px, 1.9cqw, 36px) clamp(24px, 3.2cqw, 62px)',
+      gap: 'clamp(10px, 1.3cqw, 26px)',
       position: 'relative',
       overflow: 'hidden',
     }}>
       {/* Decoration */}
-      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
-        <path d="M -100 800 Q 400 600 800 650 Q 1200 700 1920 400" fill="none" stroke="var(--c-warm-gray)" strokeWidth="1" opacity="0.3" />
-        <rect x="200" y="640" width="20" height="3" rx="1.5" fill="var(--c-violet)" opacity="0.5" />
-      </svg>
+      <Traces variant="calm" nodes={false} />
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexShrink: 0 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3em' }}>
-          <div style={{ width: 85, flexShrink: 0 }}>
+          <div style={{ width: 'clamp(56px, 4.4cqw, 85px)', flexShrink: 0 }}>
             <Logo color="var(--c-coal)" />
           </div>
-          <h1 style={{ margin: 0, marginTop: 48, fontFamily: 'Aquawax Fx, sans-serif', fontSize: 'var(--fs-title)', fontWeight: 800, color: 'var(--c-coal)', lineHeight: 1 }}>
+          <h1 style={{ margin: 0, marginTop: 'clamp(12px, 1.6cqw, 32px)', fontFamily: 'var(--ff-display)', fontSize: 'var(--fs-title)', fontWeight: 800, color: 'var(--c-coal)', lineHeight: 1 }}>
             Riepilogo
           </h1>
         </div>
@@ -65,12 +63,12 @@ export default function FinalScreen({ playerName, level, correctCount, answerHis
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'clamp(8px,1.2vw,16px)', flexShrink: 0 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'clamp(8px,1.2cqw,16px)', flexShrink: 0 }}>
         {[
           { label: 'Partecipante', value: playerName || '—', color: 'var(--c-coal)' },
           { label: 'Livello raggiunto', value: `${level} — ${LEVEL_NAMES[level]}`, color: 'var(--c-violet)' },
-          { label: 'Risposte corrette', value: `${correctCount} / ${totalQuestions}`, color: correctCount === totalQuestions ? 'var(--c-violet)' : 'var(--c-coal)' },
-          { label: 'Premio', value: won ? prize : 'Premio sfiorato', color: won ? 'var(--c-pink)' : 'var(--c-coal)' },
+          { label: 'Risposte corrette', value: `${correctCount} / ${totalQuestions}`, color: correctCount === totalQuestions ? 'var(--c-green)' : 'var(--c-coal)' },
+          { label: 'Premio', value: won ? prize : reachedFinal ? 'Premio sfiorato' : '—', color: won ? 'var(--c-pink)' : 'var(--c-coal)' },
         ].map(s => (
           <div key={s.label} style={{
             background: 'var(--c-white)',
@@ -84,7 +82,7 @@ export default function FinalScreen({ playerName, level, correctCount, answerHis
             <p style={{ margin: 0, fontSize: 'var(--fs-tiny)', color: 'var(--c-coal)', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 600 }}>
               {s.label}
             </p>
-            <p style={{ margin: 0, fontFamily: 'Aquawax Fx, sans-serif', fontSize: 'var(--fs-label)', fontWeight: 800, color: s.color, lineHeight: 1.2 }}>
+            <p style={{ margin: 0, fontFamily: 'var(--ff-display)', fontSize: 'clamp(13px, 1.2cqw, 23px)', fontWeight: 800, color: s.color, lineHeight: 1.2 }}>
               {s.value}
             </p>
           </div>
@@ -96,22 +94,22 @@ export default function FinalScreen({ playerName, level, correctCount, answerHis
         <p style={{ margin: '0 0 0.8em', fontSize: 'var(--fs-label)', fontWeight: 600, color: 'var(--c-coal)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
           Risposte
         </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(6px,0.8vw,10px)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(6px,0.8cqw,10px)' }}>
           {answerHistory.map((record, i) => (
             <div key={i} style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 'clamp(10px,1.5vw,20px)',
+              gap: 'clamp(10px,1.5cqw,20px)',
               background: 'var(--c-white)',
-              border: `1.5px solid ${record.correct ? 'var(--c-violet)' : 'var(--c-orange)'}`,
+              border: `1.5px solid ${record.correct ? 'var(--c-green)' : 'var(--c-red)'}`,
               borderRadius: 'calc(var(--radius-card) * 0.7)',
               padding: '0.8em 1.2em',
             }}>
               <span style={{
-                width: 'clamp(20px,2.5vw,32px)',
-                height: 'clamp(20px,2.5vw,32px)',
+                width: 'clamp(20px,2.5cqw,32px)',
+                height: 'clamp(20px,2.5cqw,32px)',
                 borderRadius: '50%',
-                background: record.correct ? 'var(--c-violet)' : 'var(--c-orange)',
+                background: record.correct ? 'var(--c-green)' : 'var(--c-red)',
                 color: 'white',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 'var(--fs-tiny)', fontWeight: 800, flexShrink: 0,
@@ -128,7 +126,7 @@ export default function FinalScreen({ playerName, level, correctCount, answerHis
               </div>
               <span style={{
                 fontSize: 'var(--fs-tiny)',
-                color: record.correct ? 'var(--c-violet)' : 'var(--c-orange)',
+                color: record.correct ? 'var(--c-green)' : 'var(--c-red)',
                 fontWeight: 700,
                 flexShrink: 0,
               }}>
@@ -141,11 +139,11 @@ export default function FinalScreen({ playerName, level, correctCount, answerHis
 
       {/* Tagline + helps */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-        <p style={{ margin: 0, fontFamily: 'Aquawax Fx, sans-serif', fontSize: 'var(--fs-answer)', fontWeight: 600, color: 'var(--c-coal)', fontStyle: 'italic' }}>
+        <p style={{ margin: 0, fontFamily: 'var(--ff-display)', fontSize: 'var(--fs-answer)', fontWeight: 600, color: 'var(--c-coal)', fontStyle: 'italic' }}>
           "{tagline}"
         </p>
         <p style={{ margin: 0, fontSize: 'var(--fs-tiny)', color: 'var(--c-coal)' }}>
-          {helpsCount === 0 ? 'Nessun aiuto utilizzato' : `${helpsCount} aiuto${helpsCount > 1 ? 'i' : ''} utilizzato${helpsCount > 1 ? 'i' : ''}`}
+          {helpsCount === 0 ? 'Nessun aiuto utilizzato' : helpsCount === 1 ? '1 aiuto utilizzato' : `${helpsCount} aiuti utilizzati`}
         </p>
       </div>
     </div>

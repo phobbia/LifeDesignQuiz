@@ -20,9 +20,9 @@ export default function ResetConfirm({ onConfirm, onCancel }: Props) {
         border: '2px solid var(--c-orange)',
         padding: '3.5% 5%',
         textAlign: 'center',
-        maxWidth: '40vw',
+        maxWidth: '40cqw',
       }}>
-        <p style={{ margin: '0 0 0.5em', fontFamily: 'Aquawax Fx, sans-serif', fontSize: 'var(--fs-answer)', fontWeight: 700, color: 'var(--c-coal)' }}>
+        <p style={{ margin: '0 0 0.5em', fontFamily: 'var(--ff-display)', fontSize: 'var(--fs-answer)', fontWeight: 700, color: 'var(--c-coal)' }}>
           Resettare la partita?
         </p>
         <p style={{ margin: '0 0 1.8em', fontSize: 'var(--fs-label)', color: 'var(--c-coal)' }}>

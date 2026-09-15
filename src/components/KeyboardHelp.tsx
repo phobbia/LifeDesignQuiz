@@ -34,13 +34,13 @@ export default function KeyboardHelp({ onClose }: Props) {
           borderRadius: 'var(--radius-card)',
           border: '2px solid var(--c-coal)',
           padding: '3% 4%',
-          minWidth: '36vw',
-          maxWidth: '52vw',
+          minWidth: '36cqw',
+          maxWidth: '52cqw',
         }}
         onClick={e => e.stopPropagation()}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5em' }}>
-          <h2 style={{ margin: 0, fontFamily: 'Aquawax Fx, sans-serif', fontSize: 'var(--fs-answer)', color: 'var(--c-coal)', fontWeight: 700 }}>
+          <h2 style={{ margin: 0, fontFamily: 'var(--ff-display)', fontSize: 'var(--fs-answer)', color: 'var(--c-coal)', fontWeight: 700 }}>
             Scorciatoie da tastiera
           </h2>
           <button
@@ -54,7 +54,7 @@ export default function KeyboardHelp({ onClose }: Props) {
           {shortcuts.map(([key, desc]) => (
             <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
               <kbd style={{
-                fontFamily: 'Automat Grotesk, sans-serif',
+                fontFamily: 'var(--ff-mono)',
                 fontSize: 'var(--fs-tiny)',
                 background: 'var(--c-coal)',
                 color: 'var(--c-ivory)',

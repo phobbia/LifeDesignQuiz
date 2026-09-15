@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Traces from '../components/Traces';
 import type { Settings } from '../types';
 import Logo from '../components/Logo';
 
@@ -21,6 +22,11 @@ export default function SettingsScreen({ settings, onChange, onBack, onStart }: 
   const [participantInput, setParticipantInput] = useState('');
   const [extracting, setExtracting] = useState(false);
   const [extracted, setExtracted] = useState('');
+  const extractTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => () => {
+    if (extractTimer.current) clearInterval(extractTimer.current);
+  }, []);
 
   const addParticipant = () => {
     const names = participantInput.split('\n').map(n => n.trim()).filter(Boolean);
@@ -44,12 +50,14 @@ export default function SettingsScreen({ settings, onChange, onBack, onStart }: 
       count++;
       if (count > 16) {
         clearInterval(interval);
+        extractTimer.current = null;
         const final = settings.participants[Math.floor(Math.random() * settings.participants.length)];
         setExtracted(final);
         onChange({ playerName: final });
         setExtracting(false);
       }
     }, 180);
+    extractTimer.current = interval;
   };
 
   return (
@@ -60,19 +68,17 @@ export default function SettingsScreen({ settings, onChange, onBack, onStart }: 
       overflow: 'hidden',
       display: 'flex',
       flexDirection: 'column',
-      padding: '3% 5%',
-      gap: '2%',
+      padding: 'clamp(16px, 1.9cqw, 36px) clamp(24px, 3.2cqw, 62px)',
+      gap: 'clamp(10px, 1.3cqw, 26px)',
       position: 'relative',
     }}>
       {/* Decorative curve */}
-      <svg style={{ position: 'absolute', top: 0, right: 0, width: '30%', height: '40%', pointerEvents: 'none' }} viewBox="0 0 400 300" preserveAspectRatio="xMaxYMin meet">
-        <path d="M 400 0 Q 200 80 300 200 Q 350 280 400 300" fill="none" stroke="var(--c-warm-gray)" strokeWidth="1.5" opacity="0.4" />
-      </svg>
+      <Traces variant="calm" nodes={false} />
 
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3em' }}>
-          <div style={{ width: 85, flexShrink: 0 }}><Logo color="var(--c-coal)" /></div>
-          <h1 style={{ margin: 0, paddingTop: 48, fontFamily: 'Aquawax Fx, sans-serif', fontSize: 'var(--fs-title)', fontWeight: 800, color: 'var(--c-coal)', lineHeight: 1 }}>
+          <div style={{ width: 'clamp(56px, 4.4cqw, 85px)', flexShrink: 0 }}><Logo color="var(--c-coal)" /></div>
+          <h1 style={{ margin: 0, paddingTop: 'clamp(12px, 1.6cqw, 32px)', fontFamily: 'var(--ff-display)', fontSize: 'var(--fs-title)', fontWeight: 800, color: 'var(--c-coal)', lineHeight: 1 }}>
             Impostazioni
           </h1>
         </div>
@@ -82,11 +88,11 @@ export default function SettingsScreen({ settings, onChange, onBack, onStart }: 
       </div>
 
       {/* Settings grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', rowGap: '8px', columnGap: '4%', flex: '0 0 auto', height: 'fit-content', minHeight: 0, overflow: 'hidden' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 'clamp(20px, 4cqw, 76px)', flex: 1, minHeight: 0 }}>
         {/* Left col */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(10px,1.5vw,20px)', overflow: 'auto' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(10px,1.2cqw,22px)', minHeight: 0, overflowY: 'auto' }}>
           {/* Player name */}
-          <Field label="NOME PARTECIPANTE / TEAM" style={{ rowGap: 16, columnGap: 8 }}>
+          <Field label="Nome partecipante / team">
             <input
               className="quiz-input"
               placeholder="Es. Team Alfa"
@@ -111,7 +117,7 @@ export default function SettingsScreen({ settings, onChange, onBack, onStart }: 
                     padding: '0.4em 1em',
                     fontSize: 'var(--fs-label)',
                     cursor: 'pointer',
-                    fontFamily: 'Automat Grotesk, sans-serif',
+                    fontFamily: 'var(--ff-body)',
                     fontWeight: 600,
                     transition: 'all 0.2s ease',
                   }}
@@ -134,7 +140,7 @@ export default function SettingsScreen({ settings, onChange, onBack, onStart }: 
           ))}
 
           {/* Prize */}
-          <Field label="Premio finale" style={{ paddingTop: 12 }}>
+          <Field label="Premio finale">
             <input
               className="quiz-input"
               placeholder="Gadget speciale offerto dal PUG!"
@@ -146,13 +152,13 @@ export default function SettingsScreen({ settings, onChange, onBack, onStart }: 
         </div>
 
         {/* Right col: participants */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(8px,1.2vw,16px)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(8px,1.2cqw,16px)' }}>
           <p style={{ margin: 0, fontSize: 'var(--fs-label)', fontWeight: 600, color: 'var(--c-coal)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             Lista partecipanti (opzionale)
           </p>
           <textarea
             className="quiz-input"
-            style={{ fontSize: 'var(--fs-label)', borderRadius: 8, resize: 'none', height: 'clamp(80px,10vw,130px)', lineHeight: 1.6 }}
+            style={{ fontSize: 'var(--fs-label)', borderRadius: 8, resize: 'none', height: 'clamp(80px,10cqw,130px)', lineHeight: 1.6 }}
             placeholder="Un nome per riga&#10;Es.&#10;Marco&#10;Giulia&#10;Team Rosso"
             value={participantInput}
             onChange={e => setParticipantInput(e.target.value)}
@@ -167,7 +173,7 @@ export default function SettingsScreen({ settings, onChange, onBack, onStart }: 
 
           {settings.participants.length > 0 && (
             <>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5em', maxHeight: 'clamp(60px,8vw,110px)', overflow: 'auto' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5em', maxHeight: 'clamp(60px,8cqw,110px)', overflow: 'auto' }}>
                 {settings.participants.map(name => (
                   <span
                     key={name}
@@ -208,8 +214,8 @@ export default function SettingsScreen({ settings, onChange, onBack, onStart }: 
                     borderRadius: 'var(--radius-card)',
                     border: '2px solid var(--c-violet)',
                     background: 'color-mix(in srgb, var(--c-violet) 10%, white)',
-                    fontFamily: 'Aquawax Fx, sans-serif',
-                    fontWeight: 700,
+                    fontFamily: 'var(--ff-display)',
+                    fontWeight: 800,
                     fontSize: 'var(--fs-answer)',
                     color: 'var(--c-coal)',
                     animation: 'scale-in 0.3s ease',
@@ -227,10 +233,10 @@ export default function SettingsScreen({ settings, onChange, onBack, onStart }: 
       <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '0%' }}>
         <button
           className="btn-primary"
-          style={{ padding: 'clamp(10px,1.2vw,16px) clamp(28px,3vw,48px)', fontSize: 32 }}
+          style={{ padding: 'clamp(10px,1.2cqw,16px) clamp(28px,3cqw,48px)', fontSize: 'var(--fs-answer)', fontWeight: 700 }}
           onClick={onStart}
         >
-           AVANTI→
+          AVANTI →
         </button>
       </div>
     </div>
@@ -240,7 +246,7 @@ export default function SettingsScreen({ settings, onChange, onBack, onStart }: 
 function Field({ label, children, row = false, style }: { label: string; children: React.ReactNode; row?: boolean; style?: React.CSSProperties }) {
   return (
     <div style={{ display: 'flex', flexDirection: row ? 'row' : 'column', gap: '0.5em', alignItems: row ? 'center' : 'flex-start', justifyContent: row ? 'space-between' : 'flex-start', ...style }}>
-      <label style={{ fontSize: 'var(--fs-label)', fontWeight: 600, color: 'var(--c-coal)', letterSpacing: '0.05em' }}>
+      <label style={{ fontFamily: 'var(--ff-body)', fontSize: 'var(--fs-label)', fontWeight: 600, color: 'var(--c-coal)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
         {label}
       </label>
       {children}

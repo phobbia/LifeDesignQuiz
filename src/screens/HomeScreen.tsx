@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Traces from '../components/Traces';
 import Logo from '../components/Logo';
 import nomeQuizLogoSrc from '../imports/Quiz-Logo-1-v3.svg';
 
@@ -26,57 +27,18 @@ export default function HomeScreen({ onStart, onRules }: Props) {
       overflow: 'hidden',
     }}>
       {/* Animated line decoration */}
-      <svg
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
-        viewBox="0 0 1920 1080"
-        preserveAspectRatio="xMidYMid slice"
-      >
-        {/* Animated crossing line */}
-        <path
-          d="M -200 900 Q 400 200 960 540 Q 1520 880 2120 200"
-          fill="none"
-          stroke="var(--c-coal)"
-          strokeWidth="1.2"
-          opacity="0.18"
-          strokeDasharray="3000"
-          strokeDashoffset={animPhase >= 1 ? 0 : 3000}
-          style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)' }}
-        />
-        <path
-          d="M 300 -100 Q 500 400 300 700 Q 100 1000 400 1200"
-          fill="none"
-          stroke="var(--c-violet)"
-          strokeWidth="1"
-          opacity={animPhase >= 2 ? 0.22 : 0}
-          strokeDasharray="1800"
-          strokeDashoffset={animPhase >= 2 ? 0 : 1800}
-          style={{ transition: 'stroke-dashoffset 0.8s ease 0.3s, opacity 0.4s ease' }}
-        />
-        {/* Partial circle */}
-        <path
-          d="M 1700 540 m -180 0 a 180 180 0 0 1 180 -180"
-          fill="none"
-          stroke="var(--c-pink)"
-          strokeWidth="1.5"
-          opacity={animPhase >= 2 ? 0.25 : 0}
-          style={{ transition: 'opacity 0.6s ease 0.5s' }}
-        />
-        {/* Small color block */}
-        <rect x="920" y="420" width="36" height="4" rx="2" fill="var(--c-violet)" opacity={animPhase >= 3 ? 0.7 : 0} style={{ transition: 'opacity 0.3s ease' }} />
-        <rect x="960" y="635" width="24" height="4" rx="2" fill="var(--c-pink)" opacity={animPhase >= 3 ? 0.6 : 0} style={{ transition: 'opacity 0.3s ease 0.1s' }} />
-      </svg>
+      <Traces variant="full" />
 
       {/* Logo top-left */}
       <div style={{
         position: 'absolute',
         top: '4%',
         left: '4%',
-        width: 85,
-        overflow: 'hidden',
+        width: 'clamp(56px, 4.4cqw, 85px)',
         opacity: animPhase >= 3 ? 1 : 0,
         transition: 'opacity 0.6s ease',
       }}>
-        <Logo size={6.42} color="var(--c-coal)" />
+        <Logo color="var(--c-coal)" />
       </div>
 
       {/* Main content */}
@@ -87,8 +49,10 @@ export default function HomeScreen({ onStart, onRules }: Props) {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: 'clamp(12px, 2vw, 24px)',
-        width: 'fit-content',
+        gap: 'clamp(12px, 1.4cqw, 26px)',
+        width: '100%',
+        maxWidth: '84cqw',
+        padding: '0 4cqw',
         opacity: animPhase >= 3 ? 1 : 0,
         transform: animPhase >= 3 ? 'translateY(0)' : 'translateY(20px)',
         transition: 'opacity 0.7s ease, transform 0.7s ease',
@@ -98,7 +62,8 @@ export default function HomeScreen({ onStart, onRules }: Props) {
           src={nomeQuizLogoSrc}
           alt="Lascia il segno"
           style={{
-            width: 1400,
+            width: '100%',
+            maxWidth: 1400,
             height: 'auto',
             display: 'block',
           }}
@@ -107,12 +72,12 @@ export default function HomeScreen({ onStart, onRules }: Props) {
         {/* Subtitle */}
         <p style={{
           margin: 0,
-          fontFamily: '"Aquawax Fx"',
-          fontSize: '48px',
+          fontFamily: 'var(--ff-display)',
+          fontSize: 'clamp(20px, 2.5cqw, 48px)',
           fontWeight: 900,
           color: 'var(--c-coal)',
-          opacity: 1,
-          letterSpacing: '0.1px',
+          letterSpacing: '-0.01em',
+          lineHeight: 1.1,
         }}>
           Il Quiz che nessuno voleva. Tranne i ragazzi del PUG!
         </p>
@@ -121,28 +86,27 @@ export default function HomeScreen({ onStart, onRules }: Props) {
         <p style={{
           margin: 0,
           padding: 0,
-          fontFamily: '"Automat Grotesk", sans-serif',
-          fontSize: '30px',
+          fontFamily: 'var(--ff-body)',
+          fontSize: 'clamp(15px, 1.56cqw, 30px)',
           fontWeight: 600,
           color: 'var(--c-coal)',
-          opacity: 1,
-          width: 'fit-content',
+          letterSpacing: '0.01em',
         }}>
           Quattro livelli. Tre aiuti. Una domanda suprema.
         </p>
 
         {/* CTA buttons */}
-        <div style={{ display: 'flex', gap: '24px 36px', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: 'clamp(12px,1.9cqw,36px)', flexWrap: 'wrap', justifyContent: 'center' }}>
           <button
             className="btn-primary"
-            style={{ padding: 'clamp(12px,1.2vw,18px) clamp(28px,3vw,48px)', fontSize: '32px', fontFamily: '"Automat Grotesk", sans-serif', fontWeight: 400, letterSpacing: '0.1px', borderRadius: 0 }}
+            style={{ padding: 'clamp(12px,1.2cqw,18px) clamp(28px,3cqw,48px)', fontSize: 'clamp(16px,1.67cqw,32px)', fontWeight: 600, letterSpacing: '0.04em', borderRadius: 0 }}
             onClick={onStart}
           >
             INIZIA STO QUIZ!
           </button>
           <button
             className="btn-secondary"
-            style={{ padding: 'clamp(12px,1.2vw,18px) clamp(24px,2.5vw,40px)', fontSize: '32px', fontFamily: '"Automat Grotesk", sans-serif', fontWeight: 400, letterSpacing: '0.1px', borderRadius: 0, borderWidth: '2px' }}
+            style={{ padding: 'clamp(12px,1.2cqw,18px) clamp(24px,2.5cqw,40px)', fontSize: 'clamp(16px,1.67cqw,32px)', fontWeight: 600, letterSpacing: '0.04em', borderRadius: 0, borderWidth: '2px' }}
             onClick={onRules}
           >
             REGOLAMENTO
@@ -152,11 +116,11 @@ export default function HomeScreen({ onStart, onRules }: Props) {
         {/* Bottom text — moved into main content as last child */}
         <p style={{
           margin: 0,
-          fontFamily: '"Automat Grotesk", sans-serif',
-          fontSize: '20px',
+          fontFamily: 'var(--ff-body)',
+          fontSize: 'clamp(12px, 1.05cqw, 20px)',
+          fontWeight: 400,
           color: 'var(--c-coal)',
-          opacity: 1,
-          letterSpacing: '0.1px',
+          letterSpacing: '0.02em',
           textAlign: 'center',
         }}>
           Quanto ne sai davvero di design, comunicazione visiva e cultura digitale?

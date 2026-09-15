@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface Props {
   participants: string[];
@@ -40,18 +40,18 @@ export default function ExtractionOverlay({ participants, onClose, onSelect }: P
         borderRadius: 'var(--radius-card)',
         border: '2px solid var(--c-violet)',
         padding: '4% 5%',
-        maxWidth: '50vw',
-        minWidth: '40vw',
+        maxWidth: '50cqw',
+        minWidth: '40cqw',
         textAlign: 'center',
-        display: 'flex', flexDirection: 'column', gap: 'clamp(12px,1.8vw,24px)',
+        display: 'flex', flexDirection: 'column', gap: 'clamp(12px,1.8cqw,24px)',
         animation: 'scale-in 0.3s ease',
       }}>
-        <h2 style={{ margin: 0, fontFamily: 'Aquawax Fx, sans-serif', fontSize: 'var(--fs-title)', fontWeight: 800, color: 'var(--c-coal)' }}>
+        <h2 style={{ margin: 0, fontFamily: 'var(--ff-display)', fontSize: 'var(--fs-title)', fontWeight: 800, color: 'var(--c-coal)' }}>
           Estrazione
         </h2>
 
         <div style={{
-          minHeight: 'clamp(60px,8vw,100px)',
+          minHeight: 'clamp(60px,8cqw,100px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           border: `2px solid ${final ? 'var(--c-violet)' : 'var(--c-warm-gray)'}`,
           borderRadius: 'var(--radius-card)',
@@ -62,11 +62,11 @@ export default function ExtractionOverlay({ participants, onClose, onSelect }: P
           {current ? (
             <p style={{
               margin: 0,
-              fontFamily: 'Aquawax Fx, sans-serif',
+              fontFamily: 'var(--ff-display)',
               fontSize: 'var(--fs-question)',
               fontWeight: 800,
               color: 'var(--c-coal)',
-              animation: rolling ? 'vibrate-text 0.15s ease infinite' : final ? 'scale-in 0.3s ease' : 'none',
+              animation: rolling ? 'roll-flicker 0.16s var(--ease-soft) infinite' : final ? 'verdict-pop 0.45s var(--ease-back)' : 'none',
             }}>
               {current}
             </p>

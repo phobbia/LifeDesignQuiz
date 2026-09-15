@@ -5,12 +5,14 @@ export type Screen =
   | 'rules'
   | 'question'
   | 'confirm'
+  | 'suspense'
   | 'result'
   | 'level_up'
   | 'game_over'
   | 'super_unlock'
   | 'super_question'
   | 'super_confirm'
+  | 'super_suspense'
   | 'super_result'
   | 'victory'
   | 'celebrate'
@@ -32,6 +34,10 @@ export interface Question {
   question: string;
   image: string | null;
   answers: [string, string, string, string];
+  /** Chiave di un campione visivo mostrato INSIEME alla domanda (vedi data/visuals). */
+  visual?: string;
+  /** Chiavi dei quattro campioni visivi usati AL POSTO delle risposte testuali. */
+  answerVisuals?: [string, string, string, string];
   correctAnswer: 0 | 1 | 2 | 3;
   explanation: string;
   reasoningHint?: string;
@@ -67,7 +73,6 @@ export interface GameState {
   settings: Settings;
   correctCount: number;
   answerHistory: AnswerRecord[];
-  secondChanceGiven: boolean;
   helpChallengeFor: HelpType | null;
   showKeyboardHelp: boolean;
   pendingReset: boolean;

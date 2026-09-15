@@ -47,11 +47,11 @@ export default function HelpChallengeOverlay({ helpType, onComplete, onSkip }: P
         borderRadius: 'var(--radius-card)',
         border: '2px solid var(--c-violet)',
         padding: '4% 5%',
-        maxWidth: '52vw',
+        maxWidth: '52cqw',
         textAlign: 'center',
         display: 'flex',
         flexDirection: 'column',
-        gap: 'clamp(10px,1.5vw,20px)',
+        gap: 'clamp(10px,1.5cqw,20px)',
         animation: 'scale-in 0.3s ease',
       }}>
         {/* Badge */}
@@ -69,14 +69,14 @@ export default function HelpChallengeOverlay({ helpType, onComplete, onSkip }: P
           Prima, lascia il segno
         </div>
 
-        <p style={{ margin: 0, fontFamily: 'Automat Grotesk, sans-serif', fontSize: 'var(--fs-label)', color: 'var(--c-coal)' }}>
+        <p style={{ margin: 0, fontFamily: 'var(--ff-body)', fontSize: 'var(--fs-label)', color: 'var(--c-coal)' }}>
           Per sbloccare <strong style={{ color: 'var(--c-violet)' }}>{helpLabels[helpType]}</strong>, completa questa sfida:
         </p>
 
         {/* Challenge text */}
         <p style={{
           margin: 0,
-          fontFamily: 'Aquawax Fx, sans-serif',
+          fontFamily: 'var(--ff-display)',
           fontSize: 'var(--fs-question)',
           fontWeight: 700,
           color: 'var(--c-coal)',
@@ -88,8 +88,8 @@ export default function HelpChallengeOverlay({ helpType, onComplete, onSkip }: P
         {/* Countdown */}
         {started && (
           <div style={{
-            width: 'clamp(60px,8vw,100px)',
-            height: 'clamp(60px,8vw,100px)',
+            width: 'clamp(60px,8cqw,100px)',
+            height: 'clamp(60px,8cqw,100px)',
             alignSelf: 'center',
             position: 'relative',
           }}>
@@ -107,7 +107,7 @@ export default function HelpChallengeOverlay({ helpType, onComplete, onSkip }: P
               />
             </svg>
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontFamily: 'Aquawax Fx, sans-serif', fontWeight: 800, fontSize: 'clamp(1.2rem,2.5vw,2.5rem)', color: countdown <= 3 ? 'var(--c-orange)' : 'var(--c-coal)' }}>
+              <span style={{ fontFamily: 'var(--ff-display)', fontWeight: 800, fontSize: 'clamp(1.2rem,2.5cqw,2.5rem)', color: countdown <= 3 ? 'var(--c-orange)' : 'var(--c-coal)' }}>
                 {countdown}
               </span>
             </div>

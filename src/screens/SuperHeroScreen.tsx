@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
+import Traces from '../components/Traces';
 import type { Question, HelpType } from '../types';
 import TimerArc from '../components/TimerArc';
 import HelpButtons from '../components/HelpButtons';
+import { ResultModal, SuspenseOverlay, type Outcome } from '../components/Verdict';
 
 const LABELS = ['A', 'B', 'C', 'D'];
 
 interface Props {
   question: Question;
-  screen: 'super_question' | 'super_confirm' | 'super_result';
+  screen: 'super_question' | 'super_confirm' | 'super_suspense' | 'super_result';
   selectedAnswer: number | null;
   eliminatedAnswers: number[];
   helpsUsed: { fifty: boolean; audience: boolean; pug: boolean };
@@ -38,17 +40,19 @@ export default function SuperHeroScreen({
   const [answersVisible, setAnswersVisible] = useState<boolean[]>([false, false, false, false]);
   const resultPlayed = useRef(false);
   const isResult = screen === 'super_result';
+  const isSuspense = screen === 'super_suspense';
   const isConfirm = screen === 'super_confirm';
 
   useEffect(() => {
-    // Answers appear one by one
-    [0, 1, 2, 3].forEach(i => {
+    // Le risposte compaiono una alla volta
+    const timers = [0, 1, 2, 3].map(i =>
       setTimeout(() => setAnswersVisible(prev => {
         const next = [...prev];
         next[i] = true;
         return next;
-      }), 2000 + i * 280);
-    });
+      }), 1200 + i * 280),
+    );
+    return () => timers.forEach(clearTimeout);
   }, []);
 
   useEffect(() => {
@@ -65,6 +69,9 @@ export default function SuperHeroScreen({
   const cardClass = (i: number) => {
     let cls = 'answer-card';
     if (eliminatedAnswers.includes(i)) return cls + ' eliminated';
+    if (isSuspense) {
+      return cls + (i === selectedAnswer ? ' pending' : ' dimmed');
+    }
     if (isResult) {
       if (i === question.correctAnswer) return cls + ' correct';
       if (i === selectedAnswer && i !== question.correctAnswer) return cls + ' wrong';
@@ -79,6 +86,12 @@ export default function SuperHeroScreen({
   };
 
   const won = isResult && selectedAnswer === question.correctAnswer;
+  const outcome: Outcome =
+    selectedAnswer === null || selectedAnswer < 0
+      ? 'timeout'
+      : selectedAnswer === question.correctAnswer
+        ? 'correct'
+        : 'wrong';
 
   return (
     <div style={{
@@ -86,23 +99,13 @@ export default function SuperHeroScreen({
       background: 'var(--c-coal)',
       display: 'flex',
       flexDirection: 'column',
-      padding: '2.5% 3.5%',
-      gap: '1.5%',
+      padding: 'clamp(16px, 2.3cqw, 44px) clamp(20px, 3.3cqw, 64px)',
+      gap: 'clamp(8px, 1cqw, 20px)',
       position: 'relative',
       overflow: 'hidden',
     }}>
-      {/* Traccia incandescente background */}
-      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }} viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
-        {/* Bottom rising curves */}
-        <path d="M 200 1200 Q 400 900 600 600 Q 800 300 1000 200" fill="none" stroke="var(--c-pink)" strokeWidth="1.2" opacity="0.2" style={{ animation: 'incandescent 1.8s ease-in-out infinite' }} />
-        <path d="M 1720 1200 Q 1500 850 1400 600 Q 1300 350 1100 200" fill="none" stroke="var(--c-violet)" strokeWidth="1.2" opacity="0.2" style={{ animation: 'incandescent 1.8s ease-in-out infinite', animationDelay: '0.4s' }} />
-        <path d="M 960 1200 Q 900 900 960 600" fill="none" stroke="var(--c-orange)" strokeWidth="1" opacity="0.15" style={{ animation: 'incandescent 1.8s ease-in-out infinite', animationDelay: '0.8s' }} />
-        {/* Top frame line */}
-        <path d="M 0 100 Q 480 60 960 100 Q 1440 140 1920 100" fill="none" stroke="color-mix(in srgb, var(--c-pink) 40%, transparent)" strokeWidth="1" opacity="0.4" />
-        {/* Color rects */}
-        <rect x="100" y="96" width="20" height="4" rx="2" fill="var(--c-pink)" opacity="0.6" />
-        <rect x="1800" y="96" width="20" height="4" rx="2" fill="var(--c-violet)" opacity="0.6" />
-      </svg>
+      {/* Tracciati del festival */}
+      <Traces variant="open" dark opacity={0.85} />
 
       {/* TOP BAR */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 2, flexShrink: 0 }}>
@@ -111,7 +114,7 @@ export default function SuperHeroScreen({
             Domanda Suprema
           </span>
           <span style={{
-            fontFamily: 'Aquawax Fx, sans-serif',
+            fontFamily: 'var(--ff-display)',
             fontWeight: 800,
             fontSize: 'var(--fs-answer)',
             color: 'var(--c-pink)',
@@ -122,7 +125,7 @@ export default function SuperHeroScreen({
           </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px,1.5vw,20px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px,1.5cqw,20px)' }}>
           {/* Prize */}
           <div style={{
             border: '1px solid color-mix(in srgb, var(--c-pink) 40%, transparent)',
@@ -131,7 +134,7 @@ export default function SuperHeroScreen({
             fontSize: 'var(--fs-tiny)',
             color: 'var(--c-warm-gray)',
             whiteSpace: 'nowrap',
-            maxWidth: '22vw',
+            maxWidth: '22cqw',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
           }}>
@@ -160,7 +163,7 @@ export default function SuperHeroScreen({
       <div style={{ flex: '0 0 auto', zIndex: 2, maxWidth: '80%' }}>
         <p style={{
           margin: 0,
-          fontFamily: 'Aquawax Fx, sans-serif',
+          fontFamily: 'var(--ff-display)',
           fontSize: 'var(--fs-question)',
           fontWeight: 700,
           color: 'var(--c-ivory)',
@@ -179,11 +182,17 @@ export default function SuperHeroScreen({
 
       {/* ANSWER GRID 2x2 */}
       <div style={{
-        flex: 1,
+        // Altezza contenuta: le card non devono riempire tutto lo spazio
+        // residuo. Il margine automatico centra la griglia lasciando aria
+        // sopra e sotto.
+        flex: '0 1 auto',
+        height: 'clamp(196px, 30cqh, 330px)',
+        maxHeight: '100%',
+        margin: 'auto 0',
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
         gridTemplateRows: '1fr 1fr',
-        gap: 'clamp(8px,1.2vw,16px)',
+        gap: 'clamp(8px,1.2cqw,16px)',
         zIndex: 2,
         minHeight: 0,
       }}>
@@ -197,26 +206,28 @@ export default function SuperHeroScreen({
               onSelectAnswer(i);
             }}
             style={{
-              display: answersVisible[i] ? 'flex' : 'none',
+              display: 'flex',
+              visibility: answersVisible[i] ? 'visible' : 'hidden',
+              opacity: answersVisible[i] ? 1 : 0,
+              transition: 'opacity 0.4s ease',
               alignItems: 'center',
-              gap: 'clamp(10px,1.5vw,20px)',
-              padding: 'clamp(12px,1.5vw,20px) clamp(16px,2vw,28px)',
+              gap: 'clamp(10px,1.5cqw,20px)',
+              padding: 'clamp(12px,1.5cqw,20px) clamp(16px,2cqw,28px)',
               textAlign: 'left',
               width: '100%',
               height: '100%',
-              animation: answersVisible[i] ? 'fade-in 0.4s ease' : 'none',
             }}
           >
             <div style={{
               flexShrink: 0,
-              width: 'clamp(28px,3.5vw,48px)',
-              height: 'clamp(28px,3.5vw,48px)',
+              width: 'clamp(28px,3.5cqw,48px)',
+              height: 'clamp(28px,3.5cqw,48px)',
               borderRadius: '50%',
-              border: `2px solid ${isResult && i === question.correctAnswer ? 'var(--c-pink)' : isResult && i === selectedAnswer ? 'var(--c-orange)' : 'var(--c-warm-gray)'}`,
+              border: `2px solid ${isResult && (i === question.correctAnswer || i === selectedAnswer) ? 'var(--c-white)' : 'var(--c-warm-gray)'}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontFamily: 'Aquawax Fx, sans-serif',
+              fontFamily: 'var(--ff-display)',
               fontWeight: 800,
               fontSize: 'var(--fs-label)',
               color: 'var(--c-ivory)',
@@ -224,11 +235,11 @@ export default function SuperHeroScreen({
             }}>
               {LABELS[i]}
             </div>
-            <p style={{ margin: 0, fontFamily: 'Automat Grotesk, sans-serif', fontSize: 'var(--fs-answer)', fontWeight: 500, color: 'var(--c-ivory)', lineHeight: 1.3, flex: 1 }}>
+            <p style={{ margin: 0, fontFamily: 'var(--ff-body)', fontSize: 'var(--fs-answer)', fontWeight: 500, color: 'inherit', lineHeight: 1.3, flex: 1 }}>
               {ans}
             </p>
-            {isResult && i === question.correctAnswer && <span style={{ fontSize: '1.3em', flexShrink: 0, color: 'var(--c-pink)' }}>✓</span>}
-            {isResult && i === selectedAnswer && i !== question.correctAnswer && <span style={{ fontSize: '1.3em', flexShrink: 0, color: 'var(--c-orange)' }}>✕</span>}
+            {isResult && i === question.correctAnswer && <span style={{ fontSize: '1.3em', flexShrink: 0, color: 'var(--c-white)' }}>✓</span>}
+            {isResult && i === selectedAnswer && i !== question.correctAnswer && <span style={{ fontSize: '1.3em', flexShrink: 0, color: 'var(--c-white)' }}>✕</span>}
           </button>
         ))}
       </div>
@@ -246,10 +257,10 @@ export default function SuperHeroScreen({
             borderRadius: 'var(--radius-card)',
             padding: '4% 5%',
             textAlign: 'center',
-            maxWidth: '44vw',
+            maxWidth: '44cqw',
             animation: 'scale-in 0.25s ease',
           }}>
-            <p style={{ margin: '0 0 0.3em', fontFamily: 'Aquawax Fx, sans-serif', fontSize: 'var(--fs-answer)', fontWeight: 700, color: 'var(--c-ivory)' }}>
+            <p style={{ margin: '0 0 0.3em', fontFamily: 'var(--ff-display)', fontSize: 'var(--fs-answer)', fontWeight: 700, color: 'var(--c-ivory)' }}>
               È la tua risposta definitiva?
             </p>
             <p style={{ margin: '0 0 1.5em', fontSize: 'var(--fs-label)', color: 'var(--c-warm-gray)' }}>
@@ -267,42 +278,28 @@ export default function SuperHeroScreen({
         </div>
       )}
 
-      {/* RESULT OVERLAY */}
-      {isResult && (
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 10,
-          background: won
-            ? 'color-mix(in srgb, var(--c-pink) 18%, var(--c-coal))'
-            : 'color-mix(in srgb, var(--c-orange) 15%, var(--c-coal))',
-          borderTop: `3px solid ${won ? 'var(--c-pink)' : 'var(--c-orange)'}`,
-          padding: '2% 4%',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '2em',
-          animation: 'slide-up 0.4s ease',
-        }}>
-          <div style={{ flex: 1 }}>
-            <p style={{
-              margin: '0 0 0.25em',
-              fontFamily: 'Aquawax Fx, sans-serif',
-              fontWeight: 800,
-              fontSize: 'var(--fs-answer)',
-              color: won ? 'var(--c-pink)' : 'var(--c-orange)',
-              letterSpacing: '0.08em',
-            }}>
-              {selectedAnswer === null || selectedAnswer < 0 ? 'TEMPO SCADUTO' : won ? '✓ CORRETTA' : '✕ ERRATA'}
-            </p>
-            <p style={{ margin: 0, fontSize: 'var(--fs-label)', color: 'var(--c-ivory)', maxWidth: '60vw', lineHeight: 1.4 }}>
-              {question.explanation}
-            </p>
-          </div>
-          <button
-            className="btn-primary"
-            style={{ padding: '0.8em 2.2em', fontSize: 'var(--fs-label)', flexShrink: 0, background: won ? 'var(--c-pink)' : 'var(--c-ivory)', borderColor: won ? 'var(--c-pink)' : 'var(--c-ivory)', color: won ? 'white' : 'var(--c-coal)' }}
-            onClick={onNext}
-          >
-            {won ? '🏆 Vittoria →' : 'Fine partita'}
-          </button>
-        </div>
+      {/* ATTESA — i secondi di tensione prima del verdetto */}
+      {isSuspense && (
+        <SuspenseOverlay
+          durationMs={3500}
+          label={selectedAnswer !== null && selectedAnswer >= 0 ? LABELS[selectedAnswer] : null}
+          dark
+        />
       )}
+
+      {/* RESPONSO — modale centrale */}
+      {isResult && (
+        <ResultModal
+          outcome={outcome}
+          correctLabel={LABELS[question.correctAnswer]}
+          correctText={question.answers[question.correctAnswer]}
+          explanation={question.explanation}
+          buttonLabel={won ? '🏆 Vittoria →' : 'Fine partita'}
+          onNext={onNext}
+          dark
+        />
+      )}
+
     </div>
   );
 }

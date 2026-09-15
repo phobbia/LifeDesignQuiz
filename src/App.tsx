@@ -21,8 +21,45 @@ import HelpPugOverlay from './screens/HelpPugOverlay';
 import KeyboardHelp from './components/KeyboardHelp';
 import ResetConfirm from './components/ResetConfirm';
 import ExtractionOverlay from './screens/ExtractionOverlay';
+import VisualPreview from './screens/VisualPreview';
+import Traces from './components/Traces';
 
 const STORAGE_KEY = 'lascia-il-segno-v1';
+
+/** Dimensioni del canvas di progetto: tutto è disegnato in questo spazio. */
+/** Secondi di attesa fra la conferma e il responso. */
+const SUSPENSE_MS = 3500;
+
+const STAGE_W = 1920;
+const STAGE_H = 1080;
+
+/**
+ * Scala il palco 1920×1080 dentro la finestra mantenendo il 16:9.
+ * Così ogni misura del layout resta proporzionale su qualsiasi schermo
+ * (desktop, proiettore, tablet, telefono) senza rotture di adattamento.
+ */
+function useStageScale() {
+  const [scale, setScale] = useState(() =>
+    typeof window === 'undefined'
+      ? 1
+      : Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H),
+  );
+
+  useEffect(() => {
+    const update = () => {
+      setScale(Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H));
+    };
+    update();
+    window.addEventListener('resize', update);
+    window.addEventListener('orientationchange', update);
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('orientationchange', update);
+    };
+  }, []);
+
+  return scale;
+}
 
 const initialState: GameState = {
   screen: 'home',
@@ -35,7 +72,6 @@ const initialState: GameState = {
   settings: defaultSettings,
   correctCount: 0,
   answerHistory: [],
-  secondChanceGiven: false,
   helpChallengeFor: null,
   showKeyboardHelp: false,
   pendingReset: false,
@@ -53,6 +89,7 @@ type Action =
   | { type: 'CONFIRM_ANSWER' }
   | { type: 'CANCEL_CONFIRM' }
   | { type: 'REVEAL_RESULT' }
+  | { type: 'REVEAL' }
   | { type: 'NEXT_LEVEL' }
   | { type: 'USE_HELP'; help: HelpType }
   | { type: 'HELP_CHALLENGE_COMPLETE' }
@@ -63,7 +100,6 @@ type Action =
   | { type: 'STOP_TIMER' }
   | { type: 'TICK' }
   | { type: 'TIMER_EXPIRED' }
-  | { type: 'SECOND_CHANCE' }
   | { type: 'END_GAME' }
   | { type: 'NEW_GAME' }
   | { type: 'UPDATE_SETTINGS'; settings: Partial<Settings> }
@@ -82,14 +118,15 @@ function reducer(state: GameState, action: Action): GameState {
       return { ...state, settings: { ...state.settings, ...action.settings } };
 
     case 'START_GAME': {
-      const q = getRandomQuestion(1, []);
+      const q = getRandomQuestion(1, [], state.settings.randomOrder);
+      if (!q) return { ...state, screen: 'home' };
       return {
         ...initialState,
         settings: state.settings,
         screen: 'question',
         level: 1,
         currentQuestion: q,
-        usedQuestionIds: q ? [q.id] : [],
+        usedQuestionIds: [q.id],
         timerSeconds: state.settings.timerSeconds,
         timerActive: false,
         timerRunning: false,
@@ -97,15 +134,22 @@ function reducer(state: GameState, action: Action): GameState {
     }
 
     case 'LOAD_QUESTION': {
-      const q = getRandomQuestion(action.level, state.usedQuestionIds);
-      if (!q) return state;
+      // Se il pool del livello è esaurito, si ricicla solo quel livello
+      // invece di lasciare il gioco bloccato su una schermata vuota.
+      let used = state.usedQuestionIds;
+      let q = getRandomQuestion(action.level, used, state.settings.randomOrder);
+      if (!q) {
+        used = used.filter(id => Math.floor(id / 100) !== action.level);
+        q = getRandomQuestion(action.level, used, state.settings.randomOrder);
+      }
+      if (!q) return { ...state, screen: 'final' };
       const isSuperHero = action.level === 4;
       return {
         ...state,
         screen: isSuperHero ? 'super_question' : 'question',
         level: action.level,
         currentQuestion: q,
-        usedQuestionIds: [...state.usedQuestionIds, q.id],
+        usedQuestionIds: [...used, q.id],
         selectedAnswer: null,
         eliminatedAnswers: [],
         timerSeconds: state.settings.timerSeconds,
@@ -144,7 +188,8 @@ function reducer(state: GameState, action: Action): GameState {
       };
       return {
         ...state,
-        screen: state.level === 4 ? 'super_result' : 'result',
+        // Non si scopre subito: prima la fase di attesa (vedi effetto REVEAL).
+        screen: state.level === 4 ? 'super_suspense' : 'suspense',
         correctCount: correct ? state.correctCount + 1 : state.correctCount,
         answerHistory: [...state.answerHistory, record],
         timerRunning: false,
@@ -152,6 +197,11 @@ function reducer(state: GameState, action: Action): GameState {
     }
 
     case 'REVEAL_RESULT':
+      return state;
+
+    case 'REVEAL':
+      if (state.screen === 'suspense') return { ...state, screen: 'result' };
+      if (state.screen === 'super_suspense') return { ...state, screen: 'super_result' };
       return state;
 
     case 'NEXT_LEVEL': {
@@ -235,14 +285,11 @@ function reducer(state: GameState, action: Action): GameState {
       return {
         ...state,
         selectedAnswer: -1,
-        screen: state.level === 4 ? 'super_result' : 'result',
+        screen: state.level === 4 ? 'super_suspense' : 'suspense',
         timerRunning: false,
         answerHistory: [...state.answerHistory, record],
       };
     }
-
-    case 'SECOND_CHANCE':
-      return { ...state, screen: 'question', secondChanceGiven: true, selectedAnswer: null, timerSeconds: state.settings.timerSeconds };
 
     case 'END_GAME':
       return { ...state, screen: 'final' };
@@ -268,7 +315,7 @@ function reducer(state: GameState, action: Action): GameState {
     }
 
     case 'LOAD_SAVED':
-      return { ...action.state, resumeGame: false };
+      return { ...action.state, resumeGame: false, timerRunning: false, pendingReset: false, showKeyboardHelp: false };
 
     default:
       return state;
@@ -312,9 +359,24 @@ function loadState(): GameState | null {
 
 export default function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const stageScale = useStageScale();
+  const previewMode =
+    typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('anteprima');
   const [showResume, setShowResume] = useState(false);
   const [savedState, setSavedState] = useState<GameState | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // L'AudioContext parte sospeso finché non c'è un gesto dell'utente:
+  // senza questo sblocco i suoni del quiz non si sentono mai.
+  useEffect(() => {
+    const unlock = () => Audio.unlock();
+    document.addEventListener('pointerdown', unlock);
+    document.addEventListener('keydown', unlock);
+    return () => {
+      document.removeEventListener('pointerdown', unlock);
+      document.removeEventListener('keydown', unlock);
+    };
+  }, []);
 
   // Check for saved game on mount
   useEffect(() => {
@@ -329,6 +391,17 @@ export default function App() {
   useEffect(() => {
     if (!showResume) saveState(state);
   }, [state, showResume]);
+
+  // Attesa prima del responso: battito di tensione, poi si scopre.
+  useEffect(() => {
+    if (state.screen !== 'suspense' && state.screen !== 'super_suspense') return;
+    const stopSound = Audio.playSuspense(SUSPENSE_MS);
+    const t = setTimeout(() => dispatch({ type: 'REVEAL' }), SUSPENSE_MS);
+    return () => {
+      stopSound();
+      clearTimeout(t);
+    };
+  }, [state.screen]);
 
   // Timer
   useEffect(() => {
@@ -359,8 +432,16 @@ export default function App() {
     const tag = (e.target as HTMLElement)?.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA') return;
 
-    if (e.key === 'h' || e.key === 'H') { dispatch({ type: 'TOGGLE_KEYBOARD_HELP' }); return; }
-    if (e.key === 'r' || e.key === 'R') { dispatch({ type: 'REQUEST_RESET' }); return; }
+    const inOverlay = ['help_challenge', 'help_audience', 'help_pug', 'extraction'].includes(s);
+
+    if (!state.pendingReset && !inOverlay && (e.key === 'h' || e.key === 'H')) {
+      dispatch({ type: 'TOGGLE_KEYBOARD_HELP' });
+      return;
+    }
+    if (!state.pendingReset && !inOverlay && !state.showKeyboardHelp && (e.key === 'r' || e.key === 'R')) {
+      dispatch({ type: 'REQUEST_RESET' });
+      return;
+    }
 
     if (state.pendingReset) {
       if (e.key === 'Enter') dispatch({ type: 'CONFIRM_RESET' });
@@ -393,6 +474,12 @@ export default function App() {
       if (e.key === 'Escape') dispatch({ type: 'CANCEL_CONFIRM' });
     }
 
+    if (s === 'suspense' || s === 'super_suspense') {
+      // Il presentatore può accorciare l'attesa.
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); dispatch({ type: 'REVEAL' }); }
+      return;
+    }
+
     if (s === 'result' || s === 'super_result') {
       if (e.key === 'Enter' || e.key === 'ArrowRight') dispatch({ type: 'NEXT_LEVEL' });
     }
@@ -408,12 +495,15 @@ export default function App() {
     return () => document.removeEventListener('keydown', handleKey);
   }, [handleKey]);
 
-  const isSuperHero = state.level === 4 || state.screen === 'super_question' || state.screen === 'super_result' || state.screen === 'super_confirm' || state.screen === 'super_unlock' || state.screen === 'victory' || state.screen === 'defeat';
+  const isSuperHero = state.level === 4 || state.screen === 'super_question' || state.screen === 'super_result' || state.screen === 'super_confirm' || state.screen === 'super_suspense' || state.screen === 'super_unlock' || state.screen === 'victory' || state.screen === 'defeat';
+
+  if (previewMode) return <VisualPreview stageScale={stageScale} />;
 
   if (showResume && savedState) {
     return (
+      <div className="game-stage" style={{ ['--stage-scale' as string]: stageScale }}>
       <div className="game-viewport flex flex-col items-center justify-center gap-8">
-        <DecorativeCurves level={1} />
+        <Traces variant="focus" />
         <div className="z-10 flex flex-col items-center gap-6 text-center px-8">
           <p className="type-display" style={{ fontSize: 'var(--fs-title)', color: 'var(--c-coal)', fontWeight: 700 }}>
             C'è una partita in corso
@@ -439,10 +529,20 @@ export default function App() {
           </div>
         </div>
       </div>
+      </div>
     );
   }
 
   return (
+    <div className="game-stage" style={{ ['--stage-scale' as string]: stageScale }}>
+      <div className="rotate-hint">
+        <span className="rotate-hint__icon">📱</span>
+        <p className="rotate-hint__title">Ruota il dispositivo</p>
+        <p className="rotate-hint__text">
+          Il quiz è pensato per uno schermo orizzontale 16:9. Metti il telefono in
+          orizzontale (o passa a tablet, monitor o proiettore) per giocare.
+        </p>
+      </div>
     <div className={`game-viewport${isSuperHero && !['home','settings','rules','level_up','game_over','final'].includes(state.screen) ? ' dark' : ''}`}>
       {state.screen === 'home' && <HomeScreen onStart={() => dispatch({ type: 'GOTO', screen: 'settings' })} onRules={() => dispatch({ type: 'GOTO', screen: 'rules' })} />}
 
@@ -473,15 +573,15 @@ export default function App() {
         />
       )}
 
-      {(state.screen === 'question' || state.screen === 'confirm' || state.screen === 'result') && state.currentQuestion && (
+      {(state.screen === 'question' || state.screen === 'confirm' || state.screen === 'suspense' || state.screen === 'result') && state.currentQuestion && (
         <QuestionScreen
           question={state.currentQuestion}
           level={state.level as 1 | 2 | 3}
-          screen={state.screen as 'question' | 'confirm' | 'result'}
+          screen={state.screen as 'question' | 'confirm' | 'suspense' | 'result'}
           selectedAnswer={state.selectedAnswer}
           eliminatedAnswers={state.eliminatedAnswers}
           helpsUsed={state.helpsUsed}
-          helpsAllowed={!state.settings.allowHelpInFinal || state.level < 4}
+          helpsAllowed
           timerMax={state.settings.timerSeconds}
           timerSeconds={state.timerSeconds}
           timerActive={state.timerActive}
@@ -494,8 +594,8 @@ export default function App() {
           onStartTimer={() => dispatch({ type: 'START_TIMER' })}
           onToggleTimer={() => dispatch({ type: state.timerRunning ? 'STOP_TIMER' : 'START_TIMER' })}
           onUseHelp={h => dispatch({ type: 'USE_HELP', help: h })}
-          onCorrectSound={Audio.playCorrect}
-          onWrongSound={Audio.playWrong}
+          onCorrectSound={Audio.playApplause}
+          onWrongSound={Audio.playBoo}
         />
       )}
 
@@ -511,8 +611,6 @@ export default function App() {
           question={state.currentQuestion}
           selectedAnswer={state.answerHistory[state.answerHistory.length - 1]?.selectedAnswer ?? -1}
           level={state.level as 1 | 2 | 3}
-          secondChanceGiven={state.secondChanceGiven}
-          onSecondChance={() => dispatch({ type: 'SECOND_CHANCE' })}
           onEnd={() => dispatch({ type: 'END_GAME' })}
           onNew={() => dispatch({ type: 'NEW_GAME' })}
         />
@@ -525,10 +623,10 @@ export default function App() {
         />
       )}
 
-      {(state.screen === 'super_question' || state.screen === 'super_confirm' || state.screen === 'super_result') && state.currentQuestion && (
+      {(state.screen === 'super_question' || state.screen === 'super_confirm' || state.screen === 'super_suspense' || state.screen === 'super_result') && state.currentQuestion && (
         <SuperHeroScreen
           question={state.currentQuestion}
-          screen={state.screen as 'super_question' | 'super_confirm' | 'super_result'}
+          screen={state.screen as 'super_question' | 'super_confirm' | 'super_suspense' | 'super_result'}
           selectedAnswer={state.selectedAnswer}
           eliminatedAnswers={state.eliminatedAnswers}
           helpsUsed={state.helpsUsed}
@@ -554,8 +652,8 @@ export default function App() {
           onStartTimer={() => dispatch({ type: 'START_TIMER' })}
           onToggleTimer={() => dispatch({ type: state.timerRunning ? 'STOP_TIMER' : 'START_TIMER' })}
           onUseHelp={h => dispatch({ type: 'USE_HELP', help: h })}
-          onCorrectSound={Audio.playCorrect}
-          onWrongSound={Audio.playWrong}
+          onCorrectSound={Audio.playApplause}
+          onWrongSound={Audio.playBoo}
         />
       )}
 
@@ -641,7 +739,7 @@ export default function App() {
             cursor: 'pointer',
             fontSize: '15px',
             color: 'var(--c-coal)',
-            fontFamily: 'Automat Grotesk, sans-serif',
+            fontFamily: 'var(--ff-body)',
             letterSpacing: '0.1px',
             opacity: 1,
           }}
@@ -650,17 +748,6 @@ export default function App() {
         </button>
       )}
     </div>
-  );
-}
-
-// Decorative curves for home/resume screens
-function DecorativeCurves({ level }: { level: number }) {
-  const colors = level === 1 ? ['var(--c-warm-gray)', 'var(--c-violet)'] : ['var(--c-violet)', 'var(--c-pink)'];
-  return (
-    <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
-      <path d="M -100 540 Q 400 200 960 540 Q 1520 880 2020 540" fill="none" stroke={colors[0]} strokeWidth="1.5" opacity="0.3" />
-      <path d="M -100 340 Q 600 600 1200 300 Q 1600 100 2020 400" fill="none" stroke={colors[1]} strokeWidth="1" opacity="0.2" />
-      <circle cx="200" cy="200" r="80" fill="none" stroke={colors[0]} strokeWidth="1" opacity="0.15" />
-    </svg>
+    </div>
   );
 }
