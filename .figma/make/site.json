@@ -1,0 +1,11 @@
+{
+  "title": "Life Design Quiz",
+  "description": "Engage users with interactive quizzes designed to test knowledge and enhance learning through a user-friendly, dynamic platform.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
