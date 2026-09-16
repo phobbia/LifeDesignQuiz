@@ -1,7 +1,7 @@
 import { useReducer, useEffect, useCallback, useRef, useState } from 'react';
 import type { GameState, Screen, HelpType, Level, Settings } from './types';
 import { defaultSettings, LEVEL_NAMES } from './types';
-import { getRandomQuestion, pickQuestion, questions } from './data/questions';
+import { getRandomQuestion, pickQuestion } from './data/questions';
 import * as Audio from './audio';
 import HomeScreen from './screens/HomeScreen';
 import SettingsScreen from './screens/SettingsScreen';
@@ -34,11 +34,22 @@ const STORAGE_KEY = 'lascia-il-segno-v1';
  */
 const SEEN_KEY = 'lascia-il-segno-domande-uscite-v1';
 
+/**
+ * Dopo questo intervallo di inattività la memoria riparte da zero: è passata
+ * una serata. Così non serve alcun comando e nessuna schermata — la logica
+ * resta invisibile a chi guarda e non richiede niente a chi presenta.
+ */
+const SEEN_TTL_MS = 8 * 60 * 60 * 1000;
+
 function loadSeen(): number[] {
   try {
     const raw = localStorage.getItem(SEEN_KEY);
-    const list = raw ? (JSON.parse(raw) as unknown) : null;
-    return Array.isArray(list) ? list.filter(n => typeof n === 'number') : [];
+    if (!raw) return [];
+    const box = JSON.parse(raw) as unknown;
+    if (!box || typeof box !== 'object' || !('ids' in box)) return [];
+    const { ids, ts } = box as { ids: unknown; ts: unknown };
+    if (typeof ts === 'number' && Date.now() - ts > SEEN_TTL_MS) return [];
+    return Array.isArray(ids) ? ids.filter(n => typeof n === 'number') : [];
   } catch (_) {
     return [];
   }
@@ -46,7 +57,7 @@ function loadSeen(): number[] {
 
 function saveSeen(ids: number[]) {
   try {
-    localStorage.setItem(SEEN_KEY, JSON.stringify(ids));
+    localStorage.setItem(SEEN_KEY, JSON.stringify({ ids, ts: Date.now() }));
   } catch (_) {}
 }
 
@@ -160,7 +171,6 @@ type Action =
   | { type: 'REQUEST_RESET' }
   | { type: 'CANCEL_RESET' }
   | { type: 'CONFIRM_RESET' }
-  | { type: 'RESET_SEEN' }
   | { type: 'LOAD_SEEN'; ids: number[] }
   | { type: 'LOAD_SAVED'; state: GameState };
 
@@ -374,11 +384,6 @@ function reducer(state: GameState, action: Action): GameState {
     case 'LOAD_SEEN':
       return { ...state, seenQuestionIds: action.ids };
 
-    case 'RESET_SEEN': {
-      // Nuova serata: tutte le domande tornano disponibili.
-      saveSeen([]);
-      return { ...state, seenQuestionIds: [] };
-    }
 
     case 'LOAD_SAVED':
       return {
@@ -437,10 +442,6 @@ export default function App() {
   const previewMode =
     typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('anteprima');
   const [showResume, setShowResume] = useState(false);
-  // Comando da presentatore, senza traccia in interfaccia: Shift+N azzera la
-  // memoria di serata. Il pannello con i conteggi non sta nelle Impostazioni
-  // perché quella schermata viene proiettata in sala.
-  const [chiedeNuovaSerata, setChiedeNuovaSerata] = useState(false);
   const [savedState, setSavedState] = useState<GameState | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -526,12 +527,6 @@ export default function App() {
       dispatch({ type: 'REQUEST_RESET' });
       return;
     }
-    if (e.shiftKey && (e.key === 'N' || e.key === 'n')) {
-      e.preventDefault();
-      setChiedeNuovaSerata(true);
-      return;
-    }
-
     // La F non deve rubare l'aiuto 50:50, che vive solo in gioco.
     if ((e.key === 'f' || e.key === 'F') && s !== 'question' && s !== 'super_question') {
       schermoIntero.alterna();
@@ -824,19 +819,6 @@ export default function App() {
 
       {state.showKeyboardHelp && (
         <KeyboardHelp onClose={() => dispatch({ type: 'TOGGLE_KEYBOARD_HELP' })} />
-      )}
-
-      {chiedeNuovaSerata && (
-        <ResetConfirm
-          titolo="Iniziare una nuova serata?"
-          testo={`Tutte le domande tornano disponibili. Finora ne sono uscite ${state.seenQuestionIds.length} su ${questions.length}.`}
-          conferma="Nuova serata"
-          onConfirm={() => {
-            dispatch({ type: 'RESET_SEEN' });
-            setChiedeNuovaSerata(false);
-          }}
-          onCancel={() => setChiedeNuovaSerata(false)}
-        />
       )}
 
       {state.pendingReset && (
