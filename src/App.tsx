@@ -1,6 +1,6 @@
 import { useReducer, useEffect, useCallback, useRef, useState } from 'react';
 import type { GameState, Screen, HelpType, Level, Settings } from './types';
-import { defaultSettings, LEVEL_NAMES } from './types';
+import { defaultSettings, LEVEL_NAMES, PRIZE } from './types';
 import { getRandomQuestion, pickQuestion } from './data/questions';
 import * as Audio from './audio';
 import HomeScreen from './screens/HomeScreen';
@@ -388,6 +388,8 @@ function reducer(state: GameState, action: Action): GameState {
     case 'LOAD_SAVED':
       return {
         ...action.state,
+        // Un salvataggio anteriore al cambio porterebbe il vecchio premio.
+        settings: { ...action.state.settings, prize: PRIZE },
         seenQuestionIds: loadSeen(),
         resumeGame: false,
         timerRunning: false,

@@ -139,16 +139,6 @@ export default function SettingsScreen({ settings, onChange, onBack, onStart }: 
             </Field>
           ))}
 
-          {/* Prize */}
-          <Field label="Premio finale">
-            <input
-              className="quiz-input"
-              placeholder="Gadget speciale offerto dal PUG!"
-              value={settings.prize}
-              onChange={e => onChange({ prize: e.target.value })}
-              style={{ fontSize: 'var(--fs-label)', borderRadius: 8 }}
-            />
-          </Field>
         </div>
 
         {/* Right col: participants */}
