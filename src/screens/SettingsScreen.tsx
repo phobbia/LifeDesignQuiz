@@ -131,7 +131,7 @@ export default function SettingsScreen({ settings, onChange, onBack, onStart }: 
           {/* Toggles */}
           {[
             { key: 'randomOrder' as const, label: 'Ordine casuale domande' },
-            { key: 'helpChallenge' as const, label: 'Modalità "Lascia il segno" per sbloccare aiuti' },
+            { key: 'helpChallenge' as const, label: 'Sfida da superare per sbloccare gli aiuti' },
             { key: 'allowHelpInFinal' as const, label: 'Aiuti disponibili in finale' },
           ].map(({ key, label }) => (
             <Field key={key} label={label} row>

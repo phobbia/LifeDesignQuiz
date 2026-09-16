@@ -116,7 +116,7 @@ function HierarchyBlock({
         Life Design Festival
       </span>
       <span style={{ fontFamily: 'var(--ff-display)', lineHeight: 1.05, color: 'inherit', ...title }}>
-        Lascia il segno
+        Il festival del design
       </span>
       <span style={{ fontFamily: 'var(--ff-body)', lineHeight: 1.35, color: 'inherit', ...body }}>
         Tre giorni di incontri, workshop e progetti.
@@ -162,16 +162,16 @@ export const VISUALS: Record<string, () => ReactElement> = {
 
   // ── Tracking sulle maiuscole ──
   'caps-ok': () => (
-    <SpecimenLine family="var(--ff-body)" weight={600} tracking={0.16} text="LASCIA IL SEGNO" />
+    <SpecimenLine family="var(--ff-body)" weight={600} tracking={0.16} text="LIFE DESIGN FESTIVAL" />
   ),
   'caps-zero': () => (
-    <SpecimenLine family="var(--ff-body)" weight={600} tracking={-0.04} text="LASCIA IL SEGNO" />
+    <SpecimenLine family="var(--ff-body)" weight={600} tracking={-0.04} text="LIFE DESIGN FESTIVAL" />
   ),
   'caps-eccessivo': () => (
-    <SpecimenLine family="var(--ff-body)" weight={600} tracking={0.55} text="LASCIA IL SEGNO" />
+    <SpecimenLine family="var(--ff-body)" weight={600} tracking={0.55} text="LIFE DESIGN FESTIVAL" />
   ),
   'caps-negativo': () => (
-    <SpecimenLine family="var(--ff-body)" weight={600} tracking={-0.08} text="LASCIA IL SEGNO" />
+    <SpecimenLine family="var(--ff-body)" weight={600} tracking={-0.08} text="LIFE DESIGN FESTIVAL" />
   ),
 
   // ── Gerarchia tipografica ──

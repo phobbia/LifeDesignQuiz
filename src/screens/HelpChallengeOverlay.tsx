@@ -66,7 +66,7 @@ export default function HelpChallengeOverlay({ helpType, onComplete, onSkip }: P
           letterSpacing: '0.2em',
           textTransform: 'uppercase',
         }}>
-          Prima, lascia il segno
+          Prima, la sfida
         </div>
 
         <p style={{ margin: 0, fontFamily: 'var(--ff-body)', fontSize: 'var(--fs-label)', color: 'var(--c-coal)' }}>

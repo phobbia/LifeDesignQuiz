@@ -60,7 +60,7 @@ export default function HomeScreen({ onStart, onRules }: Props) {
         {/* Title — Quiz Logo SVG */}
         <img
           src={nomeQuizLogoSrc}
-          alt="Lascia il segno"
+          alt="Quiz pensato male! Venuto peggio! Ma per questo ci piace un sacco!"
           style={{
             width: '100%',
             maxWidth: 1400,
