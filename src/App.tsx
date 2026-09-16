@@ -628,12 +628,15 @@ export default function App() {
   return (
     <div className="game-stage" style={{ ['--stage-scale' as string]: stageScale }}>
       <button
-        className="fullscreen-btn"
+        className={`fullscreen-btn${schermoIntero.attivo ? ' is-attivo' : ''}`}
         onClick={schermoIntero.alterna}
         title={schermoIntero.attivo ? 'Esci da schermo intero [F]' : 'Schermo intero [F]'}
         aria-label={schermoIntero.attivo ? 'Esci da schermo intero' : 'Schermo intero'}
       >
-        {schermoIntero.attivo ? '⤡' : '⤢'}
+        <span className="fullscreen-btn__icona" aria-hidden="true">
+          {schermoIntero.attivo ? '⤡' : '⤢'}
+        </span>
+        <span className="fullscreen-btn__testo">Schermo intero</span>
       </button>
 
       <div className="rotate-hint">
