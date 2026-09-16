@@ -11,6 +11,8 @@ const shortcuts = [
   ['→', 'Avanza'],
   ['H', 'Mostra / nasconde scorciatoie'],
   ['R', 'Reset (con conferma)'],
+  ['F', 'Schermo intero (fuori dalle domande)'],
+  ['Shift + N', 'Nuova serata: rimette in gioco tutte le domande'],
 ];
 
 export default function KeyboardHelp({ onClose }: Props) {

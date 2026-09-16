@@ -2164,3 +2164,23 @@ export function getRandomQuestion(
 
   return { ...q, answers, answerVisuals, correctAnswer };
 }
+
+/**
+ * Estrae una domanda escludendo sia quelle della partita in corso sia quelle
+ * gia' uscite nella serata.
+ *
+ * Se il livello e' esaurito considerando la memoria di serata, si ricicla
+ * continuando pero' a escludere le domande gia' viste in QUESTA partita:
+ * meglio ripetere qualcosa di due concorrenti fa che bloccare il gioco o
+ * riproporre la stessa domanda due volte allo stesso giocatore.
+ */
+export function pickQuestion(
+  level: 1 | 2 | 3 | 4,
+  usedInGame: number[],
+  seenTonight: number[],
+  randomOrder = true,
+): Question | null {
+  const fresh = getRandomQuestion(level, [...usedInGame, ...seenTonight], randomOrder);
+  if (fresh) return fresh;
+  return getRandomQuestion(level, usedInGame, randomOrder);
+}

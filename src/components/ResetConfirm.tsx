@@ -1,6 +1,18 @@
-interface Props { onConfirm: () => void; onCancel: () => void }
+interface Props {
+  onConfirm: () => void;
+  onCancel: () => void;
+  titolo?: string;
+  testo?: string;
+  conferma?: string;
+}
 
-export default function ResetConfirm({ onConfirm, onCancel }: Props) {
+export default function ResetConfirm({
+  onConfirm,
+  onCancel,
+  titolo = 'Resettare la partita?',
+  testo = 'Tutti i progressi andranno persi.',
+  conferma = 'Reimposta',
+}: Props) {
   return (
     <div
       style={{
@@ -23,10 +35,10 @@ export default function ResetConfirm({ onConfirm, onCancel }: Props) {
         maxWidth: '40cqw',
       }}>
         <p style={{ margin: '0 0 0.5em', fontFamily: 'var(--ff-display)', fontSize: 'var(--fs-answer)', fontWeight: 700, color: 'var(--c-coal)' }}>
-          Resettare la partita?
+          {titolo}
         </p>
         <p style={{ margin: '0 0 1.8em', fontSize: 'var(--fs-label)', color: 'var(--c-coal)' }}>
-          Tutti i progressi andranno persi.
+          {testo}
         </p>
         <div style={{ display: 'flex', gap: '1em', justifyContent: 'center' }}>
           <button
@@ -41,7 +53,7 @@ export default function ResetConfirm({ onConfirm, onCancel }: Props) {
             style={{ padding: '0.7em 2em', fontSize: 'var(--fs-label)', background: 'var(--c-orange)', borderColor: 'var(--c-orange)' }}
             onClick={onConfirm}
           >
-            Reimposta
+            {conferma}
           </button>
         </div>
       </div>

@@ -237,6 +237,32 @@ html, body {
   color: var(--c-ivory);
 }
 
+/* ─── Schermo intero ───
+   Fuori dal palco, così non entra mai nella composizione del gioco.
+   Resta quasi invisibile finché non lo si cerca. */
+.fullscreen-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 50;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid rgba(244, 238, 228, 0.25);
+  background: rgba(38, 38, 38, 0.55);
+  color: var(--c-ivory);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.25;
+  transition: opacity var(--dur-med) var(--ease-soft), background var(--dur-med) var(--ease-soft);
+}
+.fullscreen-btn:hover,
+.fullscreen-btn:focus-visible {
+  opacity: 1;
+  background: rgba(38, 38, 38, 0.85);
+}
+
 /* ─── Suggerimento rotazione ───
    In verticale su telefono il palco 16:9 diventa una striscia minuscola:
    meglio invitare a ruotare che mostrare un gioco illeggibile. */
@@ -290,13 +316,19 @@ html, body {
    Default: tutto in Automat Grotesk. Le classi .type-* hanno specificità
    maggiore così possono sovrascrivere il default su qualsiasi elemento. */
 .game-viewport p,
-.game-viewport span,
 .game-viewport label,
 .game-viewport li,
 .game-viewport button,
 .game-viewport input,
 .game-viewport textarea {
   font-family: var(--ff-body);
+}
+
+/* Gli span ereditano dal contenitore: dentro un titolo restano in Aquawax,
+   dentro un paragrafo restano in Automat Grotesk. Senza questa regola una
+   porzione evidenziata di un titolo cambiava carattere a meta' frase. */
+.game-viewport span {
+  font-family: inherit;
 }
 
 .game-viewport h1,

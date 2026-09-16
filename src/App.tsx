@@ -1,7 +1,7 @@
 import { useReducer, useEffect, useCallback, useRef, useState } from 'react';
 import type { GameState, Screen, HelpType, Level, Settings } from './types';
 import { defaultSettings, LEVEL_NAMES } from './types';
-import { getRandomQuestion } from './data/questions';
+import { getRandomQuestion, pickQuestion, questions } from './data/questions';
 import * as Audio from './audio';
 import HomeScreen from './screens/HomeScreen';
 import SettingsScreen from './screens/SettingsScreen';
@@ -26,12 +26,64 @@ import Traces from './components/Traces';
 
 const STORAGE_KEY = 'lascia-il-segno-v1';
 
+/**
+ * Memoria di serata: gli id delle domande già uscite, conservati SEPARATAMENTE
+ * dalla partita. Una nuova partita azzera il resto ma non questa lista, così
+ * il concorrente successivo non si ritrova le domande di quello precedente.
+ * Si svuota solo dalle Impostazioni, quando comincia un evento nuovo.
+ */
+const SEEN_KEY = 'lascia-il-segno-domande-uscite-v1';
+
+function loadSeen(): number[] {
+  try {
+    const raw = localStorage.getItem(SEEN_KEY);
+    const list = raw ? (JSON.parse(raw) as unknown) : null;
+    return Array.isArray(list) ? list.filter(n => typeof n === 'number') : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function saveSeen(ids: number[]) {
+  try {
+    localStorage.setItem(SEEN_KEY, JSON.stringify(ids));
+  } catch (_) {}
+}
+
+
 /** Dimensioni del canvas di progetto: tutto è disegnato in questo spazio. */
 /** Secondi di attesa fra la conferma e il responso. */
 const SUSPENSE_MS = 3500;
 
 const STAGE_W = 1920;
 const STAGE_H = 1080;
+
+/**
+ * Schermo intero, per la proiezione in sala: toglie di mezzo barre del
+ * browser e barra di sistema. Su uno schermo 16:9 il palco arriva così a
+ * coprire il 100% della superficie, senza bande.
+ */
+function useFullscreen() {
+  const [attivo, setAttivo] = useState(
+    () => typeof document !== 'undefined' && !!document.fullscreenElement,
+  );
+
+  useEffect(() => {
+    const onChange = () => setAttivo(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+
+  const alterna = useCallback(() => {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen?.();
+    } else {
+      void document.documentElement.requestFullscreen?.().catch(() => {});
+    }
+  }, []);
+
+  return { attivo, alterna };
+}
 
 /**
  * Scala il palco 1920×1080 dentro la finestra mantenendo il 16:9.
@@ -66,6 +118,7 @@ const initialState: GameState = {
   level: 1,
   currentQuestion: null,
   usedQuestionIds: [],
+  seenQuestionIds: [],
   selectedAnswer: null,
   eliminatedAnswers: [],
   helpsUsed: { fifty: false, audience: false, pug: false },
@@ -107,6 +160,8 @@ type Action =
   | { type: 'REQUEST_RESET' }
   | { type: 'CANCEL_RESET' }
   | { type: 'CONFIRM_RESET' }
+  | { type: 'RESET_SEEN' }
+  | { type: 'LOAD_SEEN'; ids: number[] }
   | { type: 'LOAD_SAVED'; state: GameState };
 
 function reducer(state: GameState, action: Action): GameState {
@@ -118,11 +173,14 @@ function reducer(state: GameState, action: Action): GameState {
       return { ...state, settings: { ...state.settings, ...action.settings } };
 
     case 'START_GAME': {
-      const q = getRandomQuestion(1, [], state.settings.randomOrder);
+      const q = pickQuestion(1, [], state.seenQuestionIds, state.settings.randomOrder);
       if (!q) return { ...state, screen: 'home' };
+      const seen = [...state.seenQuestionIds, q.id];
+      saveSeen(seen);
       return {
         ...initialState,
         settings: state.settings,
+        seenQuestionIds: seen,
         screen: 'question',
         level: 1,
         currentQuestion: q,
@@ -134,18 +192,17 @@ function reducer(state: GameState, action: Action): GameState {
     }
 
     case 'LOAD_QUESTION': {
-      // Se il pool del livello è esaurito, si ricicla solo quel livello
-      // invece di lasciare il gioco bloccato su una schermata vuota.
-      let used = state.usedQuestionIds;
-      let q = getRandomQuestion(action.level, used, state.settings.randomOrder);
-      if (!q) {
-        used = used.filter(id => Math.floor(id / 100) !== action.level);
-        q = getRandomQuestion(action.level, used, state.settings.randomOrder);
-      }
+      const used = state.usedQuestionIds;
+      const q = pickQuestion(action.level, used, state.seenQuestionIds, state.settings.randomOrder);
       if (!q) return { ...state, screen: 'final' };
+      const seen = state.seenQuestionIds.includes(q.id)
+        ? state.seenQuestionIds
+        : [...state.seenQuestionIds, q.id];
+      saveSeen(seen);
       const isSuperHero = action.level === 4;
       return {
         ...state,
+        seenQuestionIds: seen,
         screen: isSuperHero ? 'super_question' : 'question',
         level: action.level,
         currentQuestion: q,
@@ -295,9 +352,9 @@ function reducer(state: GameState, action: Action): GameState {
       return { ...state, screen: 'final' };
 
     case 'NEW_GAME': {
-      const newState = { ...initialState, settings: state.settings };
+      // La partita riparte da zero, la memoria di serata no.
       localStorage.removeItem(STORAGE_KEY);
-      return newState;
+      return { ...initialState, settings: state.settings, seenQuestionIds: state.seenQuestionIds };
     }
 
     case 'TOGGLE_KEYBOARD_HELP':
@@ -311,11 +368,27 @@ function reducer(state: GameState, action: Action): GameState {
 
     case 'CONFIRM_RESET': {
       localStorage.removeItem(STORAGE_KEY);
-      return { ...initialState };
+      return { ...initialState, settings: state.settings, seenQuestionIds: state.seenQuestionIds };
+    }
+
+    case 'LOAD_SEEN':
+      return { ...state, seenQuestionIds: action.ids };
+
+    case 'RESET_SEEN': {
+      // Nuova serata: tutte le domande tornano disponibili.
+      saveSeen([]);
+      return { ...state, seenQuestionIds: [] };
     }
 
     case 'LOAD_SAVED':
-      return { ...action.state, resumeGame: false, timerRunning: false, pendingReset: false, showKeyboardHelp: false };
+      return {
+        ...action.state,
+        seenQuestionIds: loadSeen(),
+        resumeGame: false,
+        timerRunning: false,
+        pendingReset: false,
+        showKeyboardHelp: false,
+      };
 
     default:
       return state;
@@ -360,9 +433,14 @@ function loadState(): GameState | null {
 export default function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const stageScale = useStageScale();
+  const schermoIntero = useFullscreen();
   const previewMode =
     typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('anteprima');
   const [showResume, setShowResume] = useState(false);
+  // Comando da presentatore, senza traccia in interfaccia: Shift+N azzera la
+  // memoria di serata. Il pannello con i conteggi non sta nelle Impostazioni
+  // perché quella schermata viene proiettata in sala.
+  const [chiedeNuovaSerata, setChiedeNuovaSerata] = useState(false);
   const [savedState, setSavedState] = useState<GameState | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -376,6 +454,12 @@ export default function App() {
       document.removeEventListener('pointerdown', unlock);
       document.removeEventListener('keydown', unlock);
     };
+  }, []);
+
+  // Memoria di serata caricata all'avvio
+  useEffect(() => {
+    const seen = loadSeen();
+    if (seen.length) dispatch({ type: 'LOAD_SEEN', ids: seen });
   }, []);
 
   // Check for saved game on mount
@@ -442,6 +526,17 @@ export default function App() {
       dispatch({ type: 'REQUEST_RESET' });
       return;
     }
+    if (e.shiftKey && (e.key === 'N' || e.key === 'n')) {
+      e.preventDefault();
+      setChiedeNuovaSerata(true);
+      return;
+    }
+
+    // La F non deve rubare l'aiuto 50:50, che vive solo in gioco.
+    if ((e.key === 'f' || e.key === 'F') && s !== 'question' && s !== 'super_question') {
+      schermoIntero.alterna();
+      return;
+    }
 
     if (state.pendingReset) {
       if (e.key === 'Enter') dispatch({ type: 'CONFIRM_RESET' });
@@ -488,7 +583,7 @@ export default function App() {
       if (s === 'confirm') dispatch({ type: 'CANCEL_CONFIRM' });
       if (s === 'super_confirm') dispatch({ type: 'CANCEL_CONFIRM' });
     }
-  }, [state]);
+  }, [state, schermoIntero]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKey);
@@ -535,6 +630,15 @@ export default function App() {
 
   return (
     <div className="game-stage" style={{ ['--stage-scale' as string]: stageScale }}>
+      <button
+        className="fullscreen-btn"
+        onClick={schermoIntero.alterna}
+        title={schermoIntero.attivo ? 'Esci da schermo intero [F]' : 'Schermo intero [F]'}
+        aria-label={schermoIntero.attivo ? 'Esci da schermo intero' : 'Schermo intero'}
+      >
+        {schermoIntero.attivo ? '⤡' : '⤢'}
+      </button>
+
       <div className="rotate-hint">
         <span className="rotate-hint__icon">📱</span>
         <p className="rotate-hint__title">Ruota il dispositivo</p>
@@ -720,6 +824,19 @@ export default function App() {
 
       {state.showKeyboardHelp && (
         <KeyboardHelp onClose={() => dispatch({ type: 'TOGGLE_KEYBOARD_HELP' })} />
+      )}
+
+      {chiedeNuovaSerata && (
+        <ResetConfirm
+          titolo="Iniziare una nuova serata?"
+          testo={`Tutte le domande tornano disponibili. Finora ne sono uscite ${state.seenQuestionIds.length} su ${questions.length}.`}
+          conferma="Nuova serata"
+          onConfirm={() => {
+            dispatch({ type: 'RESET_SEEN' });
+            setChiedeNuovaSerata(false);
+          }}
+          onCancel={() => setChiedeNuovaSerata(false)}
+        />
       )}
 
       {state.pendingReset && (

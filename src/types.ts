@@ -69,6 +69,8 @@ export interface GameState {
   level: Level;
   currentQuestion: Question | null;
   usedQuestionIds: number[];
+  /** Domande già uscite nella serata, oltre la singola partita. */
+  seenQuestionIds: number[];
   selectedAnswer: number | null;
   eliminatedAnswers: number[];
   helpsUsed: { fifty: boolean; audience: boolean; pug: boolean };
