@@ -2142,32 +2142,68 @@ export function getRandomQuestion(
   usedIds: number[],
   randomOrder = true,
 ): Question | null {
+  const q = scegliDomanda(level, usedIds, randomOrder);
+  return q ? disponiRisposte(q, []) : null;
+}
+
+/** Sceglie quale domanda porre, senza toccare l'ordine delle risposte. */
+function scegliDomanda(
+  level: 1 | 2 | 3 | 4,
+  usedIds: number[],
+  randomOrder: boolean,
+): Question | null {
   const pool = questions.filter(q => q.stage === level && !usedIds.includes(q.id));
   if (pool.length === 0) return null;
-  const q = randomOrder ? pool[Math.floor(Math.random() * pool.length)] : pool[0];
+  return randomOrder ? pool[Math.floor(Math.random() * pool.length)] : pool[0];
+}
 
-  // Si mescola una permutazione di indici, non gli array: testi e campioni
-  // visivi restano così allineati fra loro, e l'indice della risposta
-  // corretta si ricava dalla permutazione invece che cercando il testo
-  // (che con due risposte identiche darebbe l'indice sbagliato).
-  const order: (0 | 1 | 2 | 3)[] = [0, 1, 2, 3];
-  for (let i = order.length - 1; i > 0; i--) {
+/**
+ * Dispone le quattro risposte in ordine casuale, potendo escludere alcune
+ * posizioni per la risposta corretta.
+ *
+ * Non si mescola "finché non va bene": si sceglie prima una posizione
+ * ammessa per la corretta, poi si distribuiscono le altre tre. Così il
+ * vincolo è sempre rispettato al primo colpo e la scelta resta uniforme
+ * fra le posizioni disponibili.
+ */
+function disponiRisposte(q: Question, posizioniVietate: number[]): Question {
+  const ammesse = [0, 1, 2, 3].filter(i => !posizioniVietate.includes(i));
+  const scelte = ammesse.length ? ammesse : [0, 1, 2, 3];
+  const destinazione = scelte[Math.floor(Math.random() * scelte.length)] as 0 | 1 | 2 | 3;
+
+  const altre = [0, 1, 2, 3].filter(i => i !== q.correctAnswer);
+  for (let i = altre.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [order[i], order[j]] = [order[j], order[i]];
+    [altre[i], altre[j]] = [altre[j], altre[i]];
+  }
+
+  // order[posizione finale] = indice originale che ci finisce dentro
+  const order: number[] = [];
+  let k = 0;
+  for (let pos = 0; pos < 4; pos++) {
+    order[pos] = pos === destinazione ? q.correctAnswer : altre[k++];
   }
 
   const answers = order.map(i => q.answers[i]) as [string, string, string, string];
   const answerVisuals = q.answerVisuals
     ? (order.map(i => q.answerVisuals![i]) as [string, string, string, string])
     : undefined;
-  const correctAnswer = order.indexOf(q.correctAnswer) as 0 | 1 | 2 | 3;
 
-  return { ...q, answers, answerVisuals, correctAnswer };
+  return { ...q, answers, answerVisuals, correctAnswer: destinazione };
 }
+
+/** Quante volte la stessa lettera può ripetersi dentro una partita. */
+const MAX_STESSA_LETTERA = 2;
 
 /**
  * Estrae una domanda escludendo sia quelle della partita in corso sia quelle
  * gia' uscite nella serata.
+ *
+ * `lettereUscite` sono le posizioni della risposta corretta nelle domande
+ * precedenti della stessa partita: una lettera che ha gia' raggiunto il
+ * limite viene esclusa. Con quattro domande per partita questo rende
+ * impossibile sia "tutte sulla stessa lettera" sia "tre di fila", senza
+ * togliere casualita' al resto.
  *
  * Se il livello e' esaurito considerando la memoria di serata, si ricicla
  * continuando pero' a escludere le domande gia' viste in QUESTA partita:
@@ -2179,8 +2215,15 @@ export function pickQuestion(
   usedInGame: number[],
   seenTonight: number[],
   randomOrder = true,
+  lettereUscite: number[] = [],
 ): Question | null {
-  const fresh = getRandomQuestion(level, [...usedInGame, ...seenTonight], randomOrder);
-  if (fresh) return fresh;
-  return getRandomQuestion(level, usedInGame, randomOrder);
+  const q =
+    scegliDomanda(level, [...usedInGame, ...seenTonight], randomOrder) ??
+    scegliDomanda(level, usedInGame, randomOrder);
+  if (!q) return null;
+
+  const sature = [0, 1, 2, 3].filter(
+    pos => lettereUscite.filter(l => l === pos).length >= MAX_STESSA_LETTERA,
+  );
+  return disponiRisposte(q, sature);
 }

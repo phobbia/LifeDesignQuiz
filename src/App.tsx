@@ -183,7 +183,7 @@ function reducer(state: GameState, action: Action): GameState {
       return { ...state, settings: { ...state.settings, ...action.settings } };
 
     case 'START_GAME': {
-      const q = pickQuestion(1, [], state.seenQuestionIds, state.settings.randomOrder);
+      const q = pickQuestion(1, [], state.seenQuestionIds, state.settings.randomOrder, []);
       if (!q) return { ...state, screen: 'home' };
       const seen = [...state.seenQuestionIds, q.id];
       saveSeen(seen);
@@ -203,7 +203,16 @@ function reducer(state: GameState, action: Action): GameState {
 
     case 'LOAD_QUESTION': {
       const used = state.usedQuestionIds;
-      const q = pickQuestion(action.level, used, state.seenQuestionIds, state.settings.randomOrder);
+      // Le lettere gia' uscite in questa partita: servono a impedire che la
+      // corretta cada sempre sulla stessa.
+      const lettereUscite = state.answerHistory.map(r => r.correctAnswer);
+      const q = pickQuestion(
+        action.level,
+        used,
+        state.seenQuestionIds,
+        state.settings.randomOrder,
+        lettereUscite,
+      );
       if (!q) return { ...state, screen: 'final' };
       const seen = state.seenQuestionIds.includes(q.id)
         ? state.seenQuestionIds
