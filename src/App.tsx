@@ -496,6 +496,19 @@ export default function App() {
     if (ripresaValutata && !showResume) saveState(state);
   }, [state, showResume, ripresaValutata]);
 
+  // Musica di tensione mentre il timer scorre.
+  //
+  // `timerSeconds` non sta fra le dipendenze di proposito: la durata serve
+  // solo all'avvio e includerla farebbe ripartire la musica a ogni secondo.
+  const secondiRimasti = useRef(state.timerSeconds);
+  secondiRimasti.current = state.timerSeconds;
+
+  useEffect(() => {
+    if (!state.timerRunning) return;
+    const stop = Audio.startTimerMusic(secondiRimasti.current);
+    return stop;
+  }, [state.timerRunning]);
+
   // Attesa prima del responso: battito di tensione, poi si scopre.
   useEffect(() => {
     if (state.screen !== 'suspense' && state.screen !== 'super_suspense') return;

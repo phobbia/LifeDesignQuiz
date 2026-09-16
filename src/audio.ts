@@ -304,3 +304,111 @@ export function playBoo() {
     src.stop(now + 1.5);
   } catch (_) {}
 }
+
+
+/**
+ * ─── Musica di tensione durante il timer ───
+ *
+ * Ostinato in la minore: quattro note che girano su sé stesse accelerando da
+ * 100 a 152 BPM, con un salto di semitono a metà percorso. Si adatta alla
+ * durata scelta nelle impostazioni (20, 30 o 45 secondi) e sfuma negli ultimi
+ * cinque, così il countdown e il verdetto arrivano puliti.
+ *
+ * Il livello è tarato per stare sotto la voce di chi presenta.
+ *
+ * Restituisce la funzione per interromperla: va chiamata appena il timer si
+ * ferma, per pausa, risposta data o tempo scaduto.
+ */
+export function startTimerMusic(durataSec: number): () => void {
+  if (!(durataSec > 0)) return () => {};
+
+  try {
+    const ac = getCtx();
+    if (ac.state === 'suspended') void ac.resume();
+    const { dry, wet } = getBus(ac);
+
+    const bus = ac.createGain();
+    bus.gain.value = 1;
+    bus.connect(dry);
+    bus.connect(wet);
+
+    const t0 = ac.currentTime + 0.06;
+    const nodi: OscillatorNode[] = [];
+    const gradi = [0, 3, 7, 3]; // tonica, terza minore, quinta, terza
+
+    let t = t0;
+    let i = 0;
+    while (t - t0 < durataSec) {
+      const avanzamento = (t - t0) / durataSec;
+      const bpm = 100 + avanzamento * 52;
+      const passo = 30 / bpm; // crome
+      const semitono = avanzamento > 0.5 ? 1 : 0;
+      const midi = 45 + gradi[i % gradi.length] + semitono;
+      const freq = 440 * Math.pow(2, (midi - 69) / 12);
+      const picco = 0.028 + avanzamento * 0.018;
+
+      nodi.push(voce(ac, bus, freq, t, passo * 1.7, picco, 'triangle', 1500 + avanzamento * 900));
+      if (i % 4 === 0) {
+        nodi.push(voce(ac, bus, freq / 2, t, passo * 3.4, picco * 0.7, 'sine', 500));
+      }
+
+      t += passo;
+      i++;
+    }
+
+    // Sfumatura finale: gli ultimi secondi devono restare liberi.
+    const inizioCalo = t0 + Math.max(0, durataSec - 5);
+    bus.gain.setValueAtTime(1, inizioCalo);
+    bus.gain.exponentialRampToValueAtTime(0.0001, t0 + durataSec);
+
+    return () => {
+      try {
+        bus.gain.cancelScheduledValues(ac.currentTime);
+        bus.gain.setTargetAtTime(0.0001, ac.currentTime, 0.04);
+      } catch (_) {}
+      nodi.forEach(n => {
+        try {
+          n.stop(ac.currentTime + 0.25);
+        } catch (_) {}
+      });
+      setTimeout(() => {
+        try {
+          bus.disconnect();
+        } catch (_) {}
+      }, 400);
+    };
+  } catch (_) {
+    return () => {};
+  }
+}
+
+/** Singola voce dell'ostinato, instradata sul bus della musica. */
+function voce(
+  ac: AudioContext,
+  bus: GainNode,
+  freq: number,
+  inizio: number,
+  durata: number,
+  picco: number,
+  tipo: OscillatorType,
+  taglio: number,
+): OscillatorNode {
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  const lp = ac.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = taglio;
+
+  osc.type = tipo;
+  osc.frequency.setValueAtTime(freq, inizio);
+  g.gain.setValueAtTime(0.0001, inizio);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.0002, picco), inizio + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, inizio + durata);
+
+  osc.connect(lp);
+  lp.connect(g);
+  g.connect(bus);
+  osc.start(inizio);
+  osc.stop(inizio + durata + 0.1);
+  return osc;
+}
