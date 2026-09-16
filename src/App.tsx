@@ -445,6 +445,7 @@ export default function App() {
     typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('anteprima');
   const [showResume, setShowResume] = useState(false);
   const [savedState, setSavedState] = useState<GameState | null>(null);
+  const [ripresaValutata, setRipresaValutata] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // L'AudioContext parte sospeso finché non c'è un gesto dell'utente:
@@ -465,19 +466,26 @@ export default function App() {
     if (seen.length) dispatch({ type: 'LOAD_SEEN', ids: seen });
   }, []);
 
-  // Check for saved game on mount
+  // Partita interrotta: si controlla una volta sola, all'avvio.
   useEffect(() => {
     const saved = loadState();
     if (saved && !['home', 'settings', 'rules', 'final'].includes(saved.screen)) {
       setSavedState(saved);
       setShowResume(true);
     }
+    setRipresaValutata(true);
   }, []);
 
-  // Save state on changes
+  // Salvataggio a ogni cambiamento.
+  //
+  // La guardia su `ripresaValutata` è indispensabile: al primo render tutti
+  // gli effetti girano in sequenza e questo vedeva ancora showResume a false,
+  // salvando lo stato iniziale sopra la partita in corso. Con screen 'home'
+  // saveState CANCELLA il salvataggio: bastava un refresh per perdere la
+  // partita.
   useEffect(() => {
-    if (!showResume) saveState(state);
-  }, [state, showResume]);
+    if (ripresaValutata && !showResume) saveState(state);
+  }, [state, showResume, ripresaValutata]);
 
   // Attesa prima del responso: battito di tensione, poi si scopre.
   useEffect(() => {
