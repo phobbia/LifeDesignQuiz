@@ -130,15 +130,18 @@ export default function SuperHeroScreen({
           <div style={{
             border: '1px solid color-mix(in srgb, var(--c-pink) 40%, transparent)',
             borderRadius: 'var(--radius-btn)',
-            padding: '0.3em 1em',
+            padding: '0.35em 1em',
             fontSize: 'var(--fs-tiny)',
             color: 'var(--c-warm-gray)',
-            whiteSpace: 'nowrap',
-            maxWidth: '22cqw',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
+            // Il premio va a capo invece di essere troncato con i puntini:
+            // e' l'informazione che tiene incollato il pubblico.
+            maxWidth: '30cqw',
+            lineHeight: 1.3,
+            textAlign: 'right',
           }}>
-            IN PALIO — {prize}
+            <span style={{ opacity: 0.7, letterSpacing: '0.12em' }}>IN PALIO</span>
+            <br />
+            {prize}
           </div>
           {helpsAllowed && (
             <HelpButtons helpsUsed={helpsUsed} allowed={helpsAllowed} dark onUse={onUseHelp} />

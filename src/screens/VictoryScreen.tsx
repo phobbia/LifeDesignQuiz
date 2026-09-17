@@ -102,7 +102,18 @@ export default function VictoryScreen({ playerName, prize, onCelebrate, onEnd }:
             <p style={{ margin: '0 0 0.3em', fontSize: 'var(--fs-tiny)', color: 'var(--c-coal)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
               HAI VINTO
             </p>
-            <p style={{ margin: 0, fontFamily: 'var(--ff-display)', fontSize: 'var(--fs-title)', fontWeight: 800, color: 'var(--c-coal)', lineHeight: 1 }}>
+            <p style={{
+              margin: 0,
+              fontFamily: 'var(--ff-display)',
+              // Non piu' var(--fs-title): a 88px un premio lungo sfondava il
+              // riquadro. Questo corpo regge una riga sola come tre.
+              fontSize: 'clamp(20px, 2.3cqw, 46px)',
+              fontWeight: 800,
+              color: 'var(--c-coal)',
+              lineHeight: 1.15,
+              maxWidth: '46cqw',
+              textWrap: 'balance',
+            }}>
               {prize}
             </p>
           </div>

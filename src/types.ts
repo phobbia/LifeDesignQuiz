@@ -104,7 +104,8 @@ export const LEVEL_COLORS: Record<Level, string> = {
  * Il premio è fisso: non si configura più dalle Impostazioni, così non può
  * essere modificato per errore mentre la schermata è proiettata in sala.
  */
-export const PRIZE = 'Biglietto aggggratis per il LIFE Design Festival 2027';
+export const PRIZE =
+  'Biglietto aggggratis per il LIFE Design Festival 2027 e PUG! Fest 2027';
 
 export const defaultSettings: Settings = {
   playerName: '',
